@@ -211,6 +211,37 @@ async fn audio_set_mute(muted: bool) -> Result<(), String> {
 async fn audio_set_device(id: String) -> Result<(), String> {
     providers::audio::set_default_device(&id).map_err(|e| e.to_string())
 }
+// ---------------------------------------------------------------- sistema y utilidades
+
+#[tauri::command]
+fn system_watch(app: AppHandle, on: bool) {
+    providers::system::watch(&app, on);
+}
+
+#[tauri::command]
+fn timer_state(app: AppHandle) -> providers::timers::TimersState {
+    app.state::<std::sync::Arc<providers::timers::Timers>>().state.lock().unwrap().clone()
+}
+
+#[tauri::command]
+fn timer_action(app: AppHandle, action: providers::timers::TimerAction) -> providers::timers::TimersState {
+    providers::timers::action(&app, action)
+}
+
+fn notes_path(app: &AppHandle) -> Result<PathBuf, String> {
+    app.path().app_config_dir().map(providers::notes::path).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn notes_get(app: AppHandle) -> Result<Vec<providers::notes::Note>, String> {
+    Ok(providers::notes::load(&notes_path(&app)?))
+}
+
+#[tauri::command]
+fn notes_save(app: AppHandle, notes: Vec<providers::notes::Note>) -> Result<(), String> {
+    providers::notes::save(&notes_path(&app)?, &notes).map_err(|e| e.to_string())
+}
+
 // ---------------------------------------------------------------- arranque
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -235,6 +266,9 @@ pub fn run() {
             });
             app.manage(providers::media::MediaHandle::default());
             app.manage(providers::agent::AgentState::default());
+            app.manage(providers::system::SystemState::default());
+            app.manage(std::sync::Arc::new(providers::timers::Timers::default()));
+            providers::timers::spawn(handle.clone());
 
             let win = app.get_webview_window("main").expect("falta la ventana main");
             window::apply_win32_styles(&win);
@@ -260,6 +294,11 @@ pub fn run() {
             quit,
             debug_log,
             agent_state,
+            system_watch,
+            timer_state,
+            timer_action,
+            notes_get,
+            notes_save,
             media_control,
             media_refresh,
             audio_state,

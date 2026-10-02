@@ -4,6 +4,9 @@
 pub mod agent;
 pub mod audio;
 pub mod media;
+pub mod notes;
+pub mod system;
+pub mod timers;
 
 use crate::settings::Settings;
 use tauri::AppHandle;

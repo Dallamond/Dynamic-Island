@@ -22,10 +22,11 @@ const COLLAPSED_ACTIVE_W = 248;
 const spring = { type: "spring", stiffness: 420, damping: 34, mass: 0.9 } as const;
 
 const NO_DRAG = "button, input, textarea, select, a, [data-nodrag]";
+const KEYBOARD = "input, textarea, [data-keyboard]";
 
 export function Island({ settings }: { settings: Settings }) {
   const { appearance: ap } = settings;
-  const { mode, dragging, onClick } = useIslandMode(ap.expandDelayMs, ap.collapseDelayMs);
+  const { mode, dragging, onClick, startEditing, stopEditing } = useIslandMode(ap.expandDelayMs, ap.collapseDelayMs);
   const [edge, setEdge] = useState<Edge>("top");
   const pill = useRef<HTMLDivElement>(null);
   const activities = useActivities();
@@ -73,6 +74,8 @@ export function Island({ settings }: { settings: Settings }) {
 
   const onPointerDown = (e: PointerEvent) => {
     if (e.button !== 0) return;
+    // Campos de texto y zonas con teclado: pedir foco antes de que el clic llegue al input.
+    if ((e.target as HTMLElement).closest(KEYBOARD)) startEditing();
     if ((e.target as HTMLElement).closest(NO_DRAG)) return;
     ipc.dragBegin();
   };
@@ -94,6 +97,10 @@ export function Island({ settings }: { settings: Settings }) {
         animate={{ width: w, height: size.h, borderRadius: size.r }}
         transition={spring}
         onPointerDown={onPointerDown}
+        onBlurCapture={(e) => {
+          const next = e.relatedTarget as HTMLElement | null;
+          if (!next?.closest(KEYBOARD)) stopEditing();
+        }}
         onClick={mode === "expanded" ? undefined : onClick}
       >
         <AnimatePresence mode="popLayout" initial={false}>

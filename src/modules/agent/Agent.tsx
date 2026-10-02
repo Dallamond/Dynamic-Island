@@ -79,10 +79,11 @@ function useTicker(active: boolean) {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     if (!active) return;
+    setNow(Date.now()); // sin esto, el primer render usa la hora del montaje
     const t = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(t);
   }, [active]);
-  return now;
+  return active ? Date.now() : now;
 }
 
 function fmtDuration(ms: number) {
