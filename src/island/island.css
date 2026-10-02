@@ -1,0 +1,208 @@
+/* Lienzo transparente del tamaño de la ventana (480×300 lógicos antes de la escala). */
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+body {
+  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.canvas {
+  width: 480px;
+  height: 300px;
+  display: flex;
+  box-sizing: border-box;
+}
+.canvas.edge-top {
+  justify-content: center;
+  align-items: flex-start;
+}
+.canvas.edge-left {
+  justify-content: flex-start;
+  align-items: center;
+}
+.canvas.edge-right {
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.pill {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* La sombra queda dentro del lienzo: el borde superior la recorta, el resto se ve. */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  font-variant-numeric: tabular-nums;
+  will-change: width, height;
+}
+.pill.dragging {
+  cursor: grabbing;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+/* ---------- Cerrada / asomada ---------- */
+.compact {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+.compact.peek {
+  font-size: 16px;
+  padding: 0 18px;
+}
+.compact-badge {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  opacity: 0.85;
+}
+.clock-compact {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Expandida ---------- */
+.expanded {
+  width: 448px;
+  height: 252px;
+  flex: none;
+  box-sizing: border-box;
+  padding: 10px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.tabs-spacer {
+  flex: 1;
+}
+.tabs .clock-compact {
+  margin-right: 6px;
+  opacity: 0.7;
+}
+.tab {
+  all: unset;
+  width: 28px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--fg);
+  opacity: 0.55;
+  transition: opacity 0.15s, background 0.15s;
+}
+.tab:hover {
+  opacity: 0.9;
+  background: rgba(255, 255, 255, 0.08);
+}
+.tab.active {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.14);
+}
+.panel {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ---------- Componentes comunes para módulos ---------- */
+.btn {
+  all: unset;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--fg);
+  transition: background 0.15s, transform 0.1s;
+}
+.btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.btn:active {
+  transform: scale(0.92);
+}
+.muted {
+  opacity: 0.55;
+}
+.label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  opacity: 0.5;
+  font-weight: 600;
+}
+
+/* ---------- Inicio ---------- */
+.home {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.clock-big {
+  text-align: center;
+}
+.clock-big-time {
+  font-size: 64px;
+  font-weight: 300;
+  line-height: 1;
+  font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+}
+.clock-big-sec {
+  font-size: 22px;
+  opacity: 0.45;
+  margin-left: 6px;
+  font-weight: 400;
+}
+.clock-big-date {
+  margin-top: 6px;
+  font-size: 14px;
+  opacity: 0.6;
+}
+.home-activities {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.home-activity {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  max-width: 400px;
+  overflow: hidden;
+}
