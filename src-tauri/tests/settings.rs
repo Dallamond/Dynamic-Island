@@ -5,7 +5,7 @@ fn ajustes_parciales_rellenan_valores_por_defecto() {
     let s: Settings = serde_json::from_str(r#"{"appearance":{"scale":1.2}}"#).unwrap();
     assert_eq!(s.appearance.scale, 1.2);
     assert_eq!(s.appearance.background, "#000000");
-    assert_eq!(s.shortcuts.toggle_expand, "Ctrl+Alt+Space");
+    assert_eq!(s.shortcuts.toggle_expand, "Ctrl+Alt+I");
     assert!(s.modules.media);
 }
 

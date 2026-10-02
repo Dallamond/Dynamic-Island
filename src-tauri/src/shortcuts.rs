@@ -18,6 +18,8 @@ pub fn plugin() -> tauri::plugin::TauriPlugin<tauri::Wry> {
 }
 
 fn on_shortcut(app: &AppHandle, shortcut: &Shortcut, event: ShortcutEvent) {
+    #[cfg(debug_assertions)]
+    eprintln!("[atajo] {shortcut:?} {:?}", event.state);
     if event.state != ShortcutState::Pressed {
         return;
     }
@@ -57,6 +59,9 @@ pub fn register(app: &AppHandle, cfg: &Shortcuts) -> Vec<String> {
             },
             Err(e) => errors.push(format!("{text}: {e}")),
         }
+    }
+    if !errors.is_empty() {
+        eprintln!("[atajos] errores: {errors:?}");
     }
     *app.state::<Shared>().shortcuts.lock().unwrap() = bound;
     errors

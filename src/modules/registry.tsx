@@ -3,9 +3,11 @@
 // - Panel: contenido de su pestaña en la isla expandida.
 import type { FC } from "react";
 import type { LucideIcon } from "lucide-react";
-import { House } from "lucide-react";
+import { House, Music2 } from "lucide-react";
 import type { Settings } from "../core/types";
 import { HomePanel } from "./home/HomePanel";
+import { MediaHost, MediaPanel } from "./media/Media";
+import "./media/media.css";
 
 export interface IslandModule {
   id: string;
@@ -18,4 +20,5 @@ export interface IslandModule {
 
 export const MODULES: IslandModule[] = [
   { id: "home", label: "Inicio", icon: House, enabled: () => true, Panel: HomePanel },
+  { id: "media", label: "Música", icon: Music2, enabled: (s) => s.modules.media, Host: MediaHost, Panel: MediaPanel },
 ];

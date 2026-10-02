@@ -14,7 +14,7 @@ import { useIslandMode, type Mode } from "./useIslandMode";
 const SIZES: Record<Mode, { w: number; h: number; r: number }> = {
   collapsed: { w: 168, h: 34, r: 17 },
   peek: { w: 300, h: 46, r: 23 },
-  expanded: { w: 448, h: 252, r: 30 },
+  expanded: { w: 460, h: 272, r: 30 },
 };
 /** Ancho cerrado cuando hay una actividad (música, agente...) en la píldora. */
 const COLLAPSED_ACTIVE_W = 248;

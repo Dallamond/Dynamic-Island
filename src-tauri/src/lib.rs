@@ -1,5 +1,6 @@
 //! Núcleo de la Dynamic Island: estado compartido, comandos y arranque.
 
+mod providers;
 pub mod settings;
 mod shortcuts;
 mod tray;
@@ -56,6 +57,7 @@ fn apply_settings(app: &AppHandle, prev: Option<&Settings>, next: &Settings, ani
     if prev.map_or(true, |p| p.autostart != next.autostart) {
         apply_autostart(app, next.autostart);
     }
+    providers::apply(app, next);
     window::place(app, animate);
     let _ = app.emit("settings://changed", next.clone());
 }
@@ -159,6 +161,51 @@ fn quit(app: AppHandle) {
     app.exit(0);
 }
 
+
+#[tauri::command]
+fn debug_log(msg: String) {
+    eprintln!("[web] {msg}");
+}
+
+// ---------------------------------------------------------------- música y audio
+
+#[tauri::command]
+fn media_control(app: AppHandle, action: String, position_ms: Option<i64>) {
+    use providers::media::{send, Control, Msg};
+    let c = match action.as_str() {
+        "playPause" => Control::PlayPause,
+        "next" => Control::Next,
+        "prev" => Control::Prev,
+        "seek" => Control::Seek(position_ms.unwrap_or(0)),
+        _ => return,
+    };
+    send(&app, Msg::Control(c));
+}
+
+#[tauri::command]
+fn media_refresh(app: AppHandle) {
+    providers::media::send(&app, providers::media::Msg::Refresh);
+}
+
+#[tauri::command]
+async fn audio_state() -> Result<providers::audio::AudioState, String> {
+    providers::audio::state().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn audio_set_volume(volume: f32) -> Result<(), String> {
+    providers::audio::set_volume(volume).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn audio_set_mute(muted: bool) -> Result<(), String> {
+    providers::audio::set_mute(muted).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn audio_set_device(id: String) -> Result<(), String> {
+    providers::audio::set_default_device(&id).map_err(|e| e.to_string())
+}
 // ---------------------------------------------------------------- arranque
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -181,6 +228,7 @@ pub fn run() {
                 hidden: AtomicBool::new(false),
                 shortcuts: Mutex::new(Vec::new()),
             });
+            app.manage(providers::media::MediaHandle::default());
 
             let win = app.get_webview_window("main").expect("falta la ventana main");
             window::apply_win32_styles(&win);
@@ -203,7 +251,14 @@ pub fn run() {
             list_monitors,
             move_to_monitor,
             reset_position,
-            quit
+            quit,
+            debug_log,
+            media_control,
+            media_refresh,
+            audio_state,
+            audio_set_volume,
+            audio_set_mute,
+            audio_set_device
         ])
         .run(tauri::generate_context!())
         .expect("error al arrancar la Dynamic Island");

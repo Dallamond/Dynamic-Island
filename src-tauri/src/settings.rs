@@ -89,7 +89,7 @@ pub struct Shortcuts {
 impl Default for Shortcuts {
     fn default() -> Self {
         Self {
-            toggle_expand: "Ctrl+Alt+Space".into(),
+            toggle_expand: "Ctrl+Alt+I".into(),
             next_monitor: "Ctrl+Alt+M".into(),
             toggle_hidden: "Ctrl+Alt+H".into(),
         }
