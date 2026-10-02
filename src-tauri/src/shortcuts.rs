@@ -30,7 +30,8 @@ fn on_shortcut(app: &AppHandle, shortcut: &Shortcut, event: ShortcutEvent) {
     };
     match action {
         Some(Action::ToggleExpand) => {
-            let _ = app.emit("island://toggle", ());
+            let label = crate::window::island_under_cursor(app);
+            let _ = app.emit_to(label.as_str(), "island://toggle", ());
         }
         Some(Action::NextMonitor) => crate::window::next_monitor(app),
         Some(Action::ToggleHidden) => crate::window::toggle_hidden(app),

@@ -57,6 +57,15 @@ export function SettingsApp() {
       <Section title="Posición">
         <MonitorMap active={s.activeMonitor} />
         <p className="hint">Arrastra la isla para moverla: se imanta arriba o a un lateral del monitor donde la sueltes.</p>
+        <Toggle label="Una isla en cada monitor" value={s.multiMonitor} onChange={(v) => update({ ...s, multiMonitor: v })} />
+        <Toggle label="Mínima con pantalla completa" value={s.minimalInFullscreen} onChange={(v) => update({ ...s, minimalInFullscreen: v })} />
+        {s.multiMonitor && (
+          <Toggle
+            label="Mínima en el monitor que estás usando"
+            value={s.minimalOnActiveMonitor}
+            onChange={(v) => update({ ...s, minimalOnActiveMonitor: v })}
+          />
+        )}
         <button className="button" onClick={() => ipc.resetPosition()}>
           Volver arriba al centro del monitor principal
         </button>

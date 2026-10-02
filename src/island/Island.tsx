@@ -5,7 +5,7 @@ import { Settings2 } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { useActivities } from "../core/activities";
 import { ErrorBoundary } from "../core/ErrorBoundary";
-import { ipc, useTauriEvent } from "../core/ipc";
+import { ipc, useWindowEvent } from "../core/ipc";
 import type { Edge, Layout, Settings } from "../core/types";
 import { CompactClock } from "../modules/clock/Clock";
 import { MODULES } from "../modules/registry";
@@ -18,6 +18,7 @@ const SIZES: Record<Mode, { w: number; h: number; r: number }> = {
 };
 /** Ancho cerrado cuando hay una actividad (música, agente...) en la píldora. */
 const COLLAPSED_ACTIVE_W = 248;
+const MINIMAL = { w: 76, h: 7, r: 4 };
 
 const spring = { type: "spring", stiffness: 420, damping: 34, mass: 0.9 } as const;
 
@@ -46,7 +47,9 @@ export function Island({ settings }: { settings: Settings }) {
   useEffect(() => {
     ipc.getLayout().then((l) => setEdge(l.edge));
   }, []);
-  useTauriEvent<Layout>("island://layout", (l) => setEdge(l.edge));
+  useWindowEvent<Layout>("island://layout", (l) => setEdge(l.edge));
+  const [minimal, setMinimal] = useState(false);
+  useWindowEvent<boolean>("island://minimal", setMinimal);
 
   // Rectángulo de la píldora → Rust (hover y click-through). Throttle a un frame.
   useLayoutEffect(() => {
@@ -57,7 +60,9 @@ export function Island({ settings }: { settings: Settings }) {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const r = el.getBoundingClientRect();
-        ipc.setHitRect(r.x, r.y, r.width, r.height);
+        // La barrita mínima es muy fina: se amplía la zona sensible para poder alcanzarla.
+        const pad = el.classList.contains("minimal") ? 8 : 0;
+        ipc.setHitRect(r.x - pad, r.y - pad, r.width + pad * 2, r.height + pad * 2);
       });
     };
     const ro = new ResizeObserver(report);
@@ -69,8 +74,10 @@ export function Island({ settings }: { settings: Settings }) {
     };
   }, [edge]);
 
-  const size = SIZES[mode];
-  const w = mode === "collapsed" && primary ? COLLAPSED_ACTIVE_W : size.w;
+  // Mínima (pantalla completa / monitor en uso): una barrita fina; el hover la expande igual.
+  const isMinimal = minimal && mode === "collapsed" && !dragging;
+  const size = isMinimal ? MINIMAL : SIZES[mode];
+  const w = isMinimal ? MINIMAL.w : mode === "collapsed" && primary ? COLLAPSED_ACTIVE_W : size.w;
 
   const onPointerDown = (e: PointerEvent) => {
     if (e.button !== 0) return;
@@ -91,8 +98,8 @@ export function Island({ settings }: { settings: Settings }) {
     <div className={`canvas edge-${edge}`} style={{ zoom: ap.scale }}>
       <motion.div
         ref={pill}
-        className={`pill mode-${mode}${dragging ? " dragging" : ""}`}
-        style={style}
+        className={`pill mode-${mode}${dragging ? " dragging" : ""}${isMinimal ? " minimal" : ""}`}
+        style={{ ...style, opacity: isMinimal ? ap.opacity * 0.55 : ap.opacity }}
         initial={false}
         animate={{ width: w, height: size.h, borderRadius: size.r }}
         transition={spring}
@@ -104,7 +111,7 @@ export function Island({ settings }: { settings: Settings }) {
         onClick={mode === "expanded" ? undefined : onClick}
       >
         <AnimatePresence mode="popLayout" initial={false}>
-          {mode === "expanded" ? (
+          {isMinimal ? null : mode === "expanded" ? (
             <motion.div
               key="expanded"
               className="expanded"

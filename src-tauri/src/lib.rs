@@ -7,6 +7,7 @@ mod tray;
 pub mod window;
 
 use settings::Settings;
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::atomic::AtomicBool;
 use std::sync::Mutex;
@@ -19,7 +20,8 @@ use window::{Geo, Layout, MonitorInfo};
 pub struct Shared {
     pub settings: Mutex<Settings>,
     pub settings_path: PathBuf,
-    pub geo: Mutex<Geo>,
+    /// Geometría de cada isla, por etiqueta de ventana.
+    pub geos: Mutex<HashMap<String, Geo>>,
     pub drag: Mutex<Option<Drag>>,
     pub hidden: AtomicBool,
     pub shortcuts: Mutex<Vec<(Shortcut, shortcuts::Action)>>,
@@ -108,29 +110,28 @@ fn save_settings(app: AppHandle, settings: Settings) {
 }
 
 #[tauri::command]
-fn get_layout(state: tauri::State<Shared>) -> Layout {
-    window::current_layout(&state)
+fn get_layout(window: tauri::WebviewWindow, state: tauri::State<Shared>) -> Layout {
+    window::layout_of(&state, window.label())
 }
 
 /// El frontend informa del rectángulo de la píldora (px lógicos dentro del lienzo).
 #[tauri::command]
-fn set_hit_rect(state: tauri::State<Shared>, x: f64, y: f64, w: f64, h: f64) {
-    state.geo.lock().unwrap().hit = (x, y, w, h);
+fn set_hit_rect(window: tauri::WebviewWindow, state: tauri::State<Shared>, x: f64, y: f64, w: f64, h: f64) {
+    state.geos.lock().unwrap().entry(window.label().to_string()).or_default().hit = (x, y, w, h);
 }
 
 /// Botón izquierdo pulsado sobre la píldora: el hilo del cursor decide si es clic o arrastre.
 #[tauri::command]
-fn drag_begin(state: tauri::State<Shared>) {
-    let g = state.geo.lock().unwrap().clone();
-    *state.drag.lock().unwrap() = Some(Drag { cursor0: cursor_pos(), win0: (g.win_x, g.win_y), moved: false });
+fn drag_begin(window: tauri::WebviewWindow, state: tauri::State<Shared>) {
+    let label = window.label().to_string();
+    let g = state.geos.lock().unwrap().get(&label).cloned().unwrap_or_default();
+    *state.drag.lock().unwrap() = Some(Drag { label, cursor0: cursor_pos(), win0: (g.win_x, g.win_y), moved: false });
 }
 
 /// Activa el foco de teclado de la isla mientras se escribe (notas, calculadora).
 #[tauri::command]
-fn set_focusable(app: AppHandle, focusable: bool) {
-    if let Some(w) = app.get_webview_window("main") {
-        window::set_focusable(&w, focusable);
-    }
+fn set_focusable(window: tauri::WebviewWindow, focusable: bool) {
+    window::set_focusable(&window, focusable);
 }
 
 #[tauri::command]
@@ -140,7 +141,7 @@ async fn open_settings(app: AppHandle) {
 
 #[tauri::command]
 fn list_monitors(app: AppHandle) -> Vec<MonitorInfo> {
-    app.get_webview_window("main").map(|w| window::list_monitors(&w)).unwrap_or_default()
+    window::list_monitors(&app)
 }
 
 #[tauri::command]
@@ -259,7 +260,7 @@ pub fn run() {
             app.manage(Shared {
                 settings: Mutex::new(loaded.clone()),
                 settings_path: path,
-                geo: Mutex::new(Geo::default()),
+                geos: Mutex::new(HashMap::new()),
                 drag: Mutex::new(None),
                 hidden: AtomicBool::new(false),
                 shortcuts: Mutex::new(Vec::new()),
@@ -271,8 +272,7 @@ pub fn run() {
             providers::timers::spawn(handle.clone());
 
             let win = app.get_webview_window("main").expect("falta la ventana main");
-            window::apply_win32_styles(&win);
-            let _ = win.set_ignore_cursor_events(true);
+            window::prepare(&win);
             apply_settings(&handle, None, &loaded, false);
             win.show()?; // único show(): a partir de aquí se mueve, nunca se oculta
 

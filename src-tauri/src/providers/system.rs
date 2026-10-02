@@ -52,12 +52,19 @@ pub struct SystemStats {
 #[derive(Default)]
 pub struct SystemState {
     watching: Mutex<Option<Arc<AtomicBool>>>,
+    /// Cuántas vistas (de cualquier isla) están mirando: se sondea mientras sea > 0.
+    viewers: Mutex<u32>,
 }
 
 pub fn watch(app: &AppHandle, on: bool) {
     let st = app.state::<SystemState>();
+    let active = {
+        let mut v = st.viewers.lock().unwrap();
+        *v = if on { *v + 1 } else { v.saturating_sub(1) };
+        *v > 0
+    };
     let mut w = st.watching.lock().unwrap();
-    match (on, w.is_some()) {
+    match (active, w.is_some()) {
         (true, false) => {
             let flag = Arc::new(AtomicBool::new(true));
             let (app2, flag2) = (app.clone(), flag.clone());

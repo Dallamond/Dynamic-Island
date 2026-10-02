@@ -1,6 +1,7 @@
 // Envoltorio tipado de los comandos y eventos del núcleo en Rust.
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
+import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { useEffect, useRef } from "react";
 import type { Layout, MonitorInfo, Settings } from "./types";
 
@@ -29,6 +30,26 @@ export function useTauriEvent<T>(name: string, handler: (payload: T) => void) {
       if (cancelled) u();
       else un = u;
     });
+    return () => {
+      cancelled = true;
+      un?.();
+    };
+  }, [name]);
+}
+
+/** Como useTauriEvent, pero solo eventos dirigidos a esta ventana (`emit_to`). Cada isla tiene los suyos. */
+export function useWindowEvent<T>(name: string, handler: (payload: T) => void) {
+  const ref = useRef(handler);
+  ref.current = handler;
+  useEffect(() => {
+    let un: UnlistenFn | undefined;
+    let cancelled = false;
+    getCurrentWebviewWindow()
+      .listen<T>(name, (e) => ref.current(e.payload))
+      .then((u) => {
+        if (cancelled) u();
+        else un = u;
+      });
     return () => {
       cancelled = true;
       un?.();

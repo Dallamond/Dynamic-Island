@@ -48,3 +48,13 @@ fn monitor_por_punto() {
     // Hueco por encima del monitor principal: el más cercano.
     assert_eq!(monitor_at(&mons, 100, -100).unwrap().1, "1");
 }
+
+#[test]
+fn pantalla_completa_cubre_el_monitor() {
+    use dynamic_island_lib::window::fullscreen::covers;
+    assert!(covers(MAIN, MAIN));
+    // Ventana maximizada normal: deja fuera la barra de tareas.
+    assert!(!covers(Rect { x: 0, y: 0, w: 2560, h: 1400 }, MAIN));
+    // Bordes invisibles de Windows: algo más grande que el monitor sigue contando.
+    assert!(covers(Rect { x: -8, y: -8, w: 2576, h: 1456 }, MAIN));
+}

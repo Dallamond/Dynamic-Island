@@ -96,13 +96,19 @@ impl Default for Shortcuts {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, Default)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 #[serde(default, rename_all = "camelCase")]
 pub struct Settings {
     pub appearance: Appearance,
     pub modules: Modules,
     pub shortcuts: Shortcuts,
     pub autostart: bool,
+    /// Una isla en cada monitor a la vez.
+    pub multi_monitor: bool,
+    /// Estado mínimo en el monitor que tiene algo a pantalla completa.
+    pub minimal_in_fullscreen: bool,
+    /// Estado mínimo en el monitor donde está la ventana activa (solo multimonitor).
+    pub minimal_on_active_monitor: bool,
     /// Nombre del monitor activo (p. ej. `\\.\DISPLAY1`). `None` = principal.
     pub active_monitor: Option<String>,
     /// Posición guardada por monitor.
@@ -130,3 +136,19 @@ pub fn save(file: &PathBuf, settings: &Settings) -> std::io::Result<()> {
     std::fs::rename(tmp, file)
 }
 
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            appearance: Appearance::default(),
+            modules: Modules::default(),
+            shortcuts: Shortcuts::default(),
+            autostart: false,
+            multi_monitor: false,
+            minimal_in_fullscreen: true,
+            minimal_on_active_monitor: false,
+            active_monitor: None,
+            positions: HashMap::new(),
+        }
+    }
+}

@@ -39,6 +39,9 @@ export interface Settings {
   modules: Modules;
   shortcuts: Shortcuts;
   autostart: boolean;
+  multiMonitor: boolean;
+  minimalInFullscreen: boolean;
+  minimalOnActiveMonitor: boolean;
   activeMonitor: string | null;
   positions: Record<string, Dock>;
 }
