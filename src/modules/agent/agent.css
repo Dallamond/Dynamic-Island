@@ -1,0 +1,147 @@
+/* ---------- Claude Code ---------- */
+.agent-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  font-size: 13px;
+}
+.agent-compact-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.agent-time {
+  flex: none;
+  font-size: 12px;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+.agent-spin {
+  animation: agent-spin 2.4s linear infinite;
+}
+@keyframes agent-spin {
+  to { transform: rotate(360deg); }
+}
+.agent-pulse {
+  animation: agent-pulse 1.2s ease-in-out infinite;
+}
+@keyframes agent-pulse {
+  50% { opacity: 0.35; }
+}
+.agent-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 13px;
+}
+.agent-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.agent-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.agent-title strong {
+  font-size: 15px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.agent-title .muted {
+  font-size: 12px;
+}
+.agent-chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.agent-line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.agent-line code {
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+  background: rgba(217, 119, 87, 0.16);
+  color: #f0a68a;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+.agent-files {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  font-size: 11.5px;
+  align-items: center;
+}
+.agent-file {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+.agent-meters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: auto;
+}
+.agent-meter-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.agent-meter-val {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.agent-bar {
+  margin-top: 4px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+.agent-bar div {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s;
+}
+.agent-meter-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 10.5px;
+  opacity: 0.5;
+  white-space: nowrap;
+}
+.agent-foot {
+  display: flex;
+  gap: 14px;
+  font-size: 11.5px;
+}
+.agent-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  font-size: 13px;
+}

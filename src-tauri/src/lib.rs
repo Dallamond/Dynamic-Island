@@ -1,6 +1,6 @@
 //! Núcleo de la Dynamic Island: estado compartido, comandos y arranque.
 
-mod providers;
+pub mod providers;
 pub mod settings;
 mod shortcuts;
 mod tray;
@@ -167,6 +167,11 @@ fn debug_log(msg: String) {
     eprintln!("[web] {msg}");
 }
 
+#[tauri::command]
+fn agent_state(app: AppHandle) -> Vec<providers::agent::AgentSession> {
+    providers::agent::snapshot(&app)
+}
+
 // ---------------------------------------------------------------- música y audio
 
 #[tauri::command]
@@ -229,6 +234,7 @@ pub fn run() {
                 shortcuts: Mutex::new(Vec::new()),
             });
             app.manage(providers::media::MediaHandle::default());
+            app.manage(providers::agent::AgentState::default());
 
             let win = app.get_webview_window("main").expect("falta la ventana main");
             window::apply_win32_styles(&win);
@@ -253,6 +259,7 @@ pub fn run() {
             reset_position,
             quit,
             debug_log,
+            agent_state,
             media_control,
             media_refresh,
             audio_state,

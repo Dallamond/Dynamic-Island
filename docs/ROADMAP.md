@@ -8,7 +8,7 @@ Estado: ⬜ pendiente · 🔄 en curso · ✅ hecha · 🧪 hecha, falta prueba 
 | 0 · Preparación | ✅ | Un repo con Tauri 2 y React abre una ventana con `npm run tauri dev`, y hay un fichero de notas con el código MIT que se reutilizará |
 | 1 · La isla | 🧪 | Aparece arriba al centro, se expande con el ratón sin parpadeos, se arrastra y se imanta, cambia de monitor, recuerda su posición al reiniciar y muestra la hora en 24 h |
 | 2 · Música | 🧪 | Con Spotify sonando se ven título y carátula, los botones controlan la reproducción, YouTube en el navegador también aparece y se pueden cambiar volumen y salida de audio |
-| 3 · Claude Code | ⬜ | Al lanzar Claude Code la isla pasa a "trabajando" y al terminar a "listo"; tokens y uso coinciden con lo que muestra Claude Code; con Claude Code cerrado no consulta nada |
+| 3 · Claude Code | 🧪 | Al lanzar Claude Code la isla pasa a "trabajando" y al terminar a "listo"; tokens y uso coinciden con lo que muestra Claude Code; con Claude Code cerrado no consulta nada |
 | 4 · Sistema y utilidades | ⬜ | CPU, RAM y GPU coinciden con el Administrador de tareas; pomodoro y cronómetro siguen contando con la isla cerrada; las notas se conservan al reiniciar |
 | 5 · Multimonitor y pulido | ⬜ | Hay una isla por monitor a la vez, pasa a estado mínimo con una pantalla completa, el consumo en reposo está medido y apuntado, y hay un instalador |
 | 6 · Futuro | ⬜ | Permisos desde la isla, avisos configurables, Codex/agentes locales, letras LRCLIB, Google Calendar, notificaciones de Windows. Cada uno es su propia mini-fase |
