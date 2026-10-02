@@ -27,7 +27,8 @@
         "minimizable": false,
         "shadow": false,
         "focus": false,
-        "visible": false
+        "visible": false,
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,SpareRendererForSitePerProcess --enable-features=NetworkServiceInProcess2 --disable-gpu --disable-background-networking --disable-component-update --disable-extensions --js-flags=--max-old-space-size=64"
       }
     ],
     "security": {

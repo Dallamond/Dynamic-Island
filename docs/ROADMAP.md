@@ -10,7 +10,7 @@ Estado: ⬜ pendiente · 🔄 en curso · ✅ hecha · 🧪 hecha, falta prueba 
 | 2 · Música | 🧪 | Con Spotify sonando se ven título y carátula, los botones controlan la reproducción, YouTube en el navegador también aparece y se pueden cambiar volumen y salida de audio |
 | 3 · Claude Code | 🧪 | Al lanzar Claude Code la isla pasa a "trabajando" y al terminar a "listo"; tokens y uso coinciden con lo que muestra Claude Code; con Claude Code cerrado no consulta nada |
 | 4 · Sistema y utilidades | 🧪 | CPU, RAM y GPU coinciden con el Administrador de tareas; pomodoro y cronómetro siguen contando con la isla cerrada; las notas se conservan al reiniciar |
-| 5 · Multimonitor y pulido | ⬜ | Hay una isla por monitor a la vez, pasa a estado mínimo con una pantalla completa, el consumo en reposo está medido y apuntado, y hay un instalador |
+| 5 · Multimonitor y pulido | 🧪 | Hay una isla por monitor a la vez, pasa a estado mínimo con una pantalla completa, el consumo en reposo está medido y apuntado, y hay un instalador |
 | 6 · Futuro | ⬜ | Permisos desde la isla, avisos configurables, Codex/agentes locales, letras LRCLIB, Google Calendar, notificaciones de Windows. Cada uno es su propia mini-fase |
 
 ## Funcionalidades por fase
@@ -38,4 +38,21 @@ Estado: ⬜ pendiente · 🔄 en curso · ✅ hecha · 🧪 hecha, falta prueba 
 
 ## Registro de mediciones
 
-(Se rellena en la fase 5.)
+02/10/2026 · build release (`npm run tauri build`) · Windows 10, AMD Ryzen 5 3600 6-Core Processor (12 hilos), RTX 3060, 3 monitores.
+Suma de `dynamic-island.exe` + sus procesos `msedgewebview2` (memoria privada; el working set cuenta
+memoria compartida varias veces). CPU = media sobre todos los núcleos. Spotify sonando y Claude Code activo.
+
+| Escenario | Procesos | RAM privada | CPU media |
+| --- | --- | --- | --- |
+| 1 isla, cerrada, WebView2 por defecto | 7 | 169 MB | 0,01 % |
+| 1 isla, cerrada, **args finales** (`--disable-gpu` y compañía) | 6 | **96 MB** | **0,01 %** |
+| 1 isla animando (entrar/salir 5 veces en 9 s), por defecto | 7 | 235 MB | 3,07 % |
+| 1 isla animando, args finales | 6 | 135 MB | 1,46 % |
+| 3 islas (multimonitor), por defecto | 9 | 280 MB | 0,15 % |
+| 3 islas, args finales (una expandida con sistema) | 8 | 197 MB | 0,11 % |
+
+- El `.exe` en sí ocupa 7–28 MB; el resto es WebView2 (proceso navegador, renderer y utilidades).
+- El presupuesto inicial (< 80 MB) no se alcanza con WebView2: el suelo realista son ~90 MB con una isla.
+  CPU en reposo sí cumple (≈ 0 %).
+- Sin GPU las animaciones gastan **menos** CPU (se ahorra el proceso de GPU) y la transparencia funciona.
+- Instalador NSIS: 1,5 MB · ejecutable: 4 MB.

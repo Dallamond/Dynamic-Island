@@ -91,6 +91,7 @@ pub fn open_settings_window(app: &AppHandle) {
         .inner_size(600.0, 720.0)
         .min_inner_size(480.0, 480.0)
         .center()
+        .additional_browser_args(window::WEBVIEW_ARGS)
         .build();
     if let Err(e) = r {
         eprintln!("[ajustes] no se pudo abrir la ventana: {e}");

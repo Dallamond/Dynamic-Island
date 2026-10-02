@@ -22,6 +22,10 @@ use tauri::{AppHandle, Emitter, Manager, Monitor, PhysicalPosition, PhysicalSize
 /// Tamaño lógico del lienzo (a escala 1.0). Cabe la isla expandida más su sombra.
 pub const CANVAS_W: f64 = 480.0;
 pub const CANVAS_H: f64 = 300.0;
+/// Argumentos de WebView2 para TODAS las ventanas (deben ser idénticos o falla la creación;
+/// el de "main" está en tauri.conf.json). Sin GPU se ahorran ~70 MB y las animaciones gastan
+/// menos CPU (medido: 1,5 % frente a 3,1 % animando). Ver docs/ROADMAP.md.
+pub const WEBVIEW_ARGS: &str = "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection,SpareRendererForSitePerProcess --enable-features=NetworkServiceInProcess2 --disable-gpu --disable-background-networking --disable-component-update --disable-extensions --js-flags=--max-old-space-size=64";
 /// Posición usada para "ocultar" la ventana sin hide().
 const OFFSCREEN: i32 = -32000;
 
@@ -191,6 +195,7 @@ fn create_island(app: &AppHandle, label: String) {
             .shadow(false)
             .focused(false)
             .visible(false)
+            .additional_browser_args(WEBVIEW_ARGS)
             .build();
         match built {
             Ok(win) => {
