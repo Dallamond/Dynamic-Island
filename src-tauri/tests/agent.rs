@@ -44,6 +44,7 @@ fn statusline_rellena_uso() {
     let u = &m["s1"].usage;
     assert_eq!(u.model.as_deref(), Some("Opus"));
     assert_eq!(u.context_pct, Some(42.0));
-    assert_eq!(u.five_hour_pct, Some(23.5));
-    assert_eq!(u.seven_day_pct, None);
+    assert_eq!(u.limits[0].pct, Some(23.5));
+    assert_eq!(u.limits[0].short, "5h");
+    assert_eq!(u.limits[1].pct, None);
 }

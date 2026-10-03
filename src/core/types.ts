@@ -25,6 +25,7 @@ export interface Appearance {
 export interface Modules {
   media: boolean;
   agent: boolean;
+  codex: boolean;
   system: boolean;
   timer: boolean;
   calc: boolean;

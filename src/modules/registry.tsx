@@ -28,7 +28,7 @@ export interface IslandModule {
 export const MODULES: IslandModule[] = [
   { id: "home", label: "Inicio", icon: House, enabled: () => true, Panel: HomePanel },
   { id: "media", label: "Música", icon: Music2, enabled: (s) => s.modules.media, Host: MediaHost, Panel: MediaPanel },
-  { id: "agent", label: "Claude Code", icon: Sparkle, enabled: (s) => s.modules.agent, Host: AgentHost, Panel: AgentPanel },
+  { id: "agent", label: "Agentes", icon: Sparkle, enabled: (s) => s.modules.agent || s.modules.codex, Host: AgentHost, Panel: AgentPanel },
   { id: "timer", label: "Temporizadores", icon: Timer, enabled: (s) => s.modules.timer, Host: TimerHost, Panel: TimerPanel },
   { id: "system", label: "Sistema", icon: Activity, enabled: (s) => s.modules.system, Panel: SystemPanel },
   { id: "calc", label: "Calculadora", icon: Calculator, enabled: (s) => s.modules.calc, Panel: CalcPanel },

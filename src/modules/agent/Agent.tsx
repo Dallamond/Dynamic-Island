@@ -1,5 +1,5 @@
-// Módulo de Claude Code: estado del turno en la píldora y detalle intermedio en el panel.
-import { AlertTriangle, Check, FileCode2, Hand, Sparkle } from "lucide-react";
+// Módulo de agentes (Claude Code y Codex): estado del turno en la píldora y detalle intermedio en el panel.
+import { AlertTriangle, Check, FileCode2, Hand, Hexagon, Sparkle } from "lucide-react";
 import { useEffect, useState, type CSSProperties } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { useActivity } from "../../core/activities";
@@ -17,10 +17,14 @@ interface Usage {
   costUsd: number | null;
   linesAdded: number | null;
   linesRemoved: number | null;
-  fiveHourPct: number | null;
-  fiveHourResets: number | null;
-  sevenDayPct: number | null;
-  sevenDayResets: number | null;
+  limits: Limit[];
+}
+
+interface Limit {
+  label: string;
+  short: string;
+  pct: number | null;
+  resets: number | null;
 }
 
 interface AgentSession {
@@ -45,6 +49,9 @@ const agentStore = createStore<AgentSession[]>([]);
 const DONE_VISIBLE_MS = 12_000;
 const ERROR_VISIBLE_MS = 30_000;
 const CLAUDE = "#d97757";
+const CODEX = "#8fb4ff";
+const isCodex = (s: AgentSession) => s.agent === "Codex";
+const agentColor = (s: AgentSession) => (isCodex(s) ? CODEX : CLAUDE);
 
 // ---------------------------------------------------------------- Host
 
@@ -120,20 +127,22 @@ const STATUS_TEXT: Record<Status, string> = {
   done: "Listo",
   error: "Error",
 };
-const STATUS_COLOR: Record<Status, string> = {
+const STATUS_COLOR: Record<Exclude<Status, "working">, string> = {
   idle: "rgba(255,255,255,0.5)",
-  working: CLAUDE,
   waiting: "#ffb340",
   done: "#30d158",
   error: "#ff453a",
 };
 
-function StatusIcon({ status, size }: { status: Status; size: number }) {
-  const color = STATUS_COLOR[status];
-  if (status === "done") return <Check size={size} color={color} strokeWidth={3} />;
-  if (status === "error") return <AlertTriangle size={size} color={color} />;
-  if (status === "waiting") return <Hand size={size} color={color} className="agent-pulse" />;
-  return <Sparkle size={size} color={color} fill={color} className={status === "working" ? "agent-spin" : ""} />;
+const statusColor = (s: AgentSession) => (s.status === "working" ? agentColor(s) : STATUS_COLOR[s.status]);
+
+function StatusIcon({ s, size }: { s: AgentSession; size: number }) {
+  const color = statusColor(s);
+  if (s.status === "done") return <Check size={size} color={color} strokeWidth={3} />;
+  if (s.status === "error") return <AlertTriangle size={size} color={color} />;
+  if (s.status === "waiting") return <Hand size={size} color={color} className="agent-pulse" />;
+  const Icon = isCodex(s) ? Hexagon : Sparkle;
+  return <Icon size={size} color={color} fill={isCodex(s) ? "none" : color} strokeWidth={isCodex(s) ? 2.6 : 2} className={s.status === "working" ? "agent-spin" : ""} />;
 }
 
 // ---------------------------------------------------------------- Píldora
@@ -146,9 +155,9 @@ function AgentCompact() {
   const detail = s.status === "working" ? s.lastAction : s.status === "waiting" ? s.project : s.project;
   return (
     <span className="agent-compact">
-      <StatusIcon status={s.status} size={15} />
+      <StatusIcon s={s} size={15} />
       <span className="agent-compact-text">
-        <span style={{ color: STATUS_COLOR[s.status] }}>{STATUS_TEXT[s.status]}</span>
+        <span style={{ color: statusColor(s) }}>{STATUS_TEXT[s.status]}</span>
         {detail && <span className="muted"> · {detail}</span>}
       </span>
       {t != null && s.status !== "waiting" && <span className="agent-time">{fmtDuration(t)}</span>}
@@ -172,10 +181,10 @@ function AgentTall() {
   return (
     <div className="agent-tall">
       <div className="agent-tall-head">
-        <StatusIcon status={s.status} size={15} />
+        <StatusIcon s={s} size={15} />
         <span className="agent-compact-text">
-          <span style={{ color: STATUS_COLOR[s.status], fontWeight: 650 }}>{STATUS_TEXT[s.status]}</span>
-          {s.project && <span className="muted"> · {s.project}</span>}
+          <span style={{ color: statusColor(s), fontWeight: 650 }}>{STATUS_TEXT[s.status]}</span>
+          <span className="muted"> · {isCodex(s) ? "Codex" : "Claude"}{s.project ? ` · ${s.project}` : ""}</span>
         </span>
         {t != null && s.status !== "waiting" && <span className="agent-time">{fmtDuration(t)}</span>}
       </div>
@@ -183,25 +192,26 @@ function AgentTall() {
         {line}
       </div>
       <div className="agent-tall-meters">
-        <MiniMeter label="Ctx" pct={u.contextPct} />
-        <MiniMeter label="5h" pct={u.fiveHourPct} />
-        <MiniMeter label="Sem" pct={u.sevenDayPct} />
+        <MiniMeter label="Ctx" pct={u.contextPct} color={agentColor(s)} />
+        {u.limits.slice(0, 2).map((l) => (
+          <MiniMeter key={l.short} label={l.short} pct={l.pct} color={agentColor(s)} />
+        ))}
       </div>
     </div>
   );
 }
 
-function meterColor(p: number) {
-  return p >= 90 ? "#ff453a" : p >= 70 ? "#ffb340" : CLAUDE;
+function meterColor(p: number, base: string) {
+  return p >= 90 ? "#ff453a" : p >= 70 ? "#ffb340" : base;
 }
 
-function MiniMeter({ label, pct }: { label: string; pct: number | null }) {
+function MiniMeter({ label, pct, color }: { label: string; pct: number | null; color: string }) {
   const p = pct ?? 0;
   return (
     <span className="agent-mini">
       <span className="muted">{label}</span>
       <span className="agent-bar">
-        <span style={{ width: `${Math.min(100, p)}%`, background: meterColor(p) }} />
+        <span style={{ width: `${Math.min(100, p)}%`, background: meterColor(p, color) }} />
       </span>
       <span className="agent-mini-val">{pct == null ? "—" : `${Math.round(p)}%`}</span>
     </span>
@@ -210,14 +220,14 @@ function MiniMeter({ label, pct }: { label: string; pct: number | null }) {
 
 function AgentBadge() {
   const s = useStore(agentStore)[0];
-  return s ? <StatusIcon status={s.status} size={14} /> : null;
+  return s ? <StatusIcon s={s} size={14} /> : null;
 }
 
 // ---------------------------------------------------------------- Panel
 
-function Meter({ label, pct, sub }: { label: string; pct: number | null; sub?: string }) {
+function Meter({ label, pct, sub, base }: { label: string; pct: number | null; sub?: string; base: string }) {
   const p = pct ?? 0;
-  const color = meterColor(p);
+  const color = meterColor(p, base);
   return (
     <div className="agent-meter">
       <div className="agent-meter-head">
@@ -241,7 +251,7 @@ export function AgentPanel() {
     return (
       <div className="agent-empty">
         <Sparkle size={26} color={CLAUDE} fill={CLAUDE} />
-        <p className="muted">Sin sesiones de Claude Code. Al lanzar una, su estado aparecerá aquí.</p>
+        <p className="muted">Sin sesiones de Claude Code ni Codex. Al lanzar una, su estado aparecerá aquí.</p>
       </div>
     );
   }
@@ -251,15 +261,16 @@ export function AgentPanel() {
   return (
     <div className="agent-panel">
       <div className="agent-head">
-        <StatusIcon status={s.status} size={18} />
+        <StatusIcon s={s} size={18} />
         <div className="agent-title">
-          <strong>{s.project || "Claude Code"}</strong>
+          <strong>{s.project || s.agent}</strong>
           <span className="muted">
             {STATUS_TEXT[s.status]}
             {t != null ? ` · ${fmtDuration(t)}` : ""}
             {s.toolCount > 0 ? ` · ${s.toolCount} acciones` : ""}
           </span>
         </div>
+        <span className="agent-chip" style={{ color: agentColor(s) }}>{s.agent}</span>
         {u.model && <span className="agent-chip">{u.model}</span>}
         {sessions.length > 1 && <span className="agent-chip">+{sessions.length - 1}</span>}
       </div>
@@ -280,9 +291,10 @@ export function AgentPanel() {
       )}
 
       <div className="agent-meters">
-        <Meter label="Contexto" pct={u.contextPct} sub={`${fmtTokens(u.inputTokens)} / ${fmtTokens(u.contextSize)}`} />
-        <Meter label="5 horas" pct={u.fiveHourPct} sub={fmtReset(u.fiveHourResets)} />
-        <Meter label="Semana" pct={u.sevenDayPct} sub={fmtReset(u.sevenDayResets)} />
+        <Meter label="Contexto" pct={u.contextPct} sub={`${fmtTokens(u.inputTokens)} / ${fmtTokens(u.contextSize)}`} base={agentColor(s)} />
+        {u.limits.slice(0, 2).map((l) => (
+          <Meter key={l.label} label={l.label} pct={l.pct} sub={fmtReset(l.resets)} base={agentColor(s)} />
+        ))}
       </div>
 
       <div className="agent-foot muted">

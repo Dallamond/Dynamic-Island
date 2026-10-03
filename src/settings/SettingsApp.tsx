@@ -85,6 +85,7 @@ export function SettingsApp() {
       <Section title="Módulos">
         <Toggle label="Música y audio" value={s.modules.media} onChange={(v) => mod("media", v)} />
         <Toggle label="Claude Code" value={s.modules.agent} onChange={(v) => mod("agent", v)} />
+        <Toggle label="Codex" value={s.modules.codex} onChange={(v) => mod("codex", v)} />
         <Toggle label="Sistema (CPU, RAM, GPU)" value={s.modules.system} onChange={(v) => mod("system", v)} />
         <Toggle label="Temporizadores" value={s.modules.timer} onChange={(v) => mod("timer", v)} />
         <Toggle label="Calculadora" value={s.modules.calc} onChange={(v) => mod("calc", v)} />

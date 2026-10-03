@@ -3,6 +3,7 @@
 
 pub mod agent;
 pub mod audio;
+pub mod codex;
 pub mod media;
 pub mod notes;
 pub mod system;
@@ -14,4 +15,5 @@ use tauri::AppHandle;
 pub fn apply(app: &AppHandle, s: &Settings) {
     media::set_enabled(app, s.modules.media);
     agent::set_enabled(app, s.modules.agent);
+    codex::set_enabled(app, s.modules.codex);
 }

@@ -1,4 +1,6 @@
-//! Estado de Claude Code recibido por HTTP local (sin credenciales, sin sondeo).
+//! Estado de los agentes de código. Claude Code llega por HTTP local; Codex lo lee `codex.rs`.
+//!
+//! Claude Code: estado recibido por HTTP local (sin credenciales, sin sondeo).
 //!
 //! - `POST /hook`: hooks HTTP de Claude Code (SessionStart, UserPromptSubmit, PreToolUse...).
 //! - `POST /status`: el JSON del statusLine (contexto, coste, límites de 5 h y semanal),
@@ -18,6 +20,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Emitter, Manager};
 
 pub const PORT: u16 = 47823;
+pub const CLAUDE: &str = "Claude Code";
 /// Máximo de archivos tocados que se recuerdan por turno.
 const MAX_FILES: usize = 8;
 
@@ -43,10 +46,20 @@ pub struct Usage {
     pub cost_usd: Option<f64>,
     pub lines_added: Option<u64>,
     pub lines_removed: Option<u64>,
-    pub five_hour_pct: Option<f64>,
-    pub five_hour_resets: Option<i64>,
-    pub seven_day_pct: Option<f64>,
-    pub seven_day_resets: Option<i64>,
+    /// Límites de uso del plan (Claude: 5 h y semana; Codex: lo que diga su ventana).
+    pub limits: Vec<Limit>,
+}
+
+#[derive(Serialize, Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Limit {
+    /// Nombre largo para el panel ("5 horas").
+    pub label: String,
+    /// Nombre corto para la píldora ("5h").
+    pub short: String,
+    pub pct: Option<f64>,
+    /// Epoch en segundos.
+    pub resets: Option<i64>,
 }
 
 #[derive(Serialize, Clone, Default, Debug)]
@@ -70,11 +83,11 @@ pub struct AgentSession {
 
 #[derive(Default)]
 pub struct AgentState {
-    sessions: Mutex<HashMap<String, AgentSession>>,
+    pub(crate) sessions: Mutex<HashMap<String, AgentSession>>,
     running: Mutex<Option<Arc<AtomicBool>>>,
 }
 
-fn now_ms() -> i64 {
+pub(crate) fn now_ms() -> i64 {
     SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_millis() as i64).unwrap_or(0)
 }
 
@@ -104,7 +117,7 @@ pub fn set_enabled(app: &AppHandle, enabled: bool) {
                 // Despierta al accept() bloqueado para que el hilo termine.
                 let _ = TcpStream::connect_timeout(&([127, 0, 0, 1], PORT).into(), Duration::from_millis(200));
             }
-            st.sessions.lock().unwrap().clear();
+            st.sessions.lock().unwrap().retain(|_, s| s.agent != CLAUDE);
             emit(app);
         }
         _ => {}
@@ -187,11 +200,11 @@ fn str_of<'a>(v: &'a Value, k: &str) -> Option<&'a str> {
     v.get(k).and_then(|x| x.as_str())
 }
 
-fn file_name(path: &str) -> String {
+pub(crate) fn file_name(path: &str) -> String {
     path.rsplit(['/', '\\']).next().unwrap_or(path).to_string()
 }
 
-fn truncate(s: &str, n: usize) -> String {
+pub(crate) fn truncate(s: &str, n: usize) -> String {
     let s = s.trim().replace(['\n', '\r'], " ");
     if s.chars().count() <= n {
         s
@@ -215,7 +228,7 @@ fn describe_tool(name: &str, input: &Value) -> String {
 
 fn session_entry<'a>(map: &'a mut HashMap<String, AgentSession>, v: &Value) -> Option<&'a mut AgentSession> {
     let id = str_of(v, "session_id")?.to_string();
-    let s = map.entry(id.clone()).or_insert_with(|| AgentSession { id, agent: "Claude Code".into(), ..Default::default() });
+    let s = map.entry(id.clone()).or_insert_with(|| AgentSession { id, agent: CLAUDE.into(), ..Default::default() });
     if let Some(cwd) = str_of(v, "cwd") {
         s.cwd = cwd.to_string();
         s.project = file_name(cwd.trim_end_matches(['/', '\\']));
@@ -322,10 +335,10 @@ pub fn apply_status(map: &mut HashMap<String, AgentSession>, v: &Value) -> bool 
         cost_usd: f("/cost/total_cost_usd"),
         lines_added: u("/cost/total_lines_added"),
         lines_removed: u("/cost/total_lines_removed"),
-        five_hour_pct: f("/rate_limits/five_hour/used_percentage"),
-        five_hour_resets: i("/rate_limits/five_hour/resets_at"),
-        seven_day_pct: f("/rate_limits/seven_day/used_percentage"),
-        seven_day_resets: i("/rate_limits/seven_day/resets_at"),
+        limits: vec![
+            Limit { label: "5 horas".into(), short: "5h".into(), pct: f("/rate_limits/five_hour/used_percentage"), resets: i("/rate_limits/five_hour/resets_at") },
+            Limit { label: "Semana".into(), short: "Sem".into(), pct: f("/rate_limits/seven_day/used_percentage"), resets: i("/rate_limits/seven_day/resets_at") },
+        ],
     };
     true
 }
@@ -346,6 +359,6 @@ pub fn snapshot(app: &AppHandle) -> Vec<AgentSession> {
     list
 }
 
-fn emit(app: &AppHandle) {
+pub(crate) fn emit(app: &AppHandle) {
     let _ = app.emit("agent://state", snapshot(app));
 }

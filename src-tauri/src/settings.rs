@@ -77,6 +77,8 @@ impl Default for Appearance {
 pub struct Modules {
     pub media: bool,
     pub agent: bool,
+    /// Codex (app de escritorio o CLI), leído de sus archivos de sesión.
+    pub codex: bool,
     pub system: bool,
     pub timer: bool,
     pub calc: bool,
@@ -85,7 +87,7 @@ pub struct Modules {
 
 impl Default for Modules {
     fn default() -> Self {
-        Self { media: true, agent: true, system: true, timer: true, calc: true, notes: true }
+        Self { media: true, agent: true, codex: true, system: true, timer: true, calc: true, notes: true }
     }
 }
 
