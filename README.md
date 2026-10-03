@@ -12,7 +12,7 @@ en reposo usa ~0 % de CPU y ~96 MB de RAM, y ningún módulo consulta nada si es
 > Versión 0.2.0 · Windows 10/11 x64 · Interfaz en español.
 
 <p align="center">
-  <img src="docs/img/agents-multi.png" width="480" alt="Tres agentes trabajando a la vez y un pomodoro">
+  <img src="docs/img/demo.gif" width="480" alt="Demo: música, ratón encima, agentes trabajando a la vez y pomodoro">
 </p>
 <p align="center">
   <img src="docs/img/media-expanded.png" width="320" alt="Panel de música">
@@ -211,6 +211,8 @@ Las imágenes de `docs/img` salen de la app real con el backend simulado y datos
 npm run dev                         # en otra terminal
 node scripts/capture-docs.mjs       # todas las escenas (o: node scripts/capture-docs.mjs media peek)
 ```
+
+El GIF de la cabecera se graba con `node scripts/record-gif.mjs` (necesita `npm i --no-save puppeteer-core gifenc pngjs`).
 
 `demo.html?scene=<escena>` abre cualquier escena en el navegador. El icono y las imágenes del instalador
 salen de `brand/` (`icon.svg` y `render.html`); los iconos se regeneran con `npx tauri icon brand/icon.png`.

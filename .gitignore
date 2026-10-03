@@ -26,3 +26,7 @@ dist-ssr
 # Rust / Tauri (el target real vive en D:/dev-tools/targets)
 src-tauri/target
 src-tauri/gen/schemas
+
+# Notas locales (no se publican)
+CLAUDE.md
+Dynamic Island para PC*.md

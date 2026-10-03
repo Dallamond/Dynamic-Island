@@ -6,11 +6,13 @@ import { emit } from "@tauri-apps/api/event";
 import { MotionGlobalConfig } from "motion/react";
 import type { Settings } from "../core/types";
 
-// Chrome sin ventana no completa las animaciones: en las capturas terminan al instante.
-MotionGlobalConfig.instantAnimations = true;
-
 const params = new URLSearchParams(location.search);
 const scene = params.get("scene") ?? "clock";
+/** "story": secuencia animada en tiempo real para el GIF del README. */
+const story = scene === "story";
+
+// Chrome sin ventana no completa las animaciones: en las capturas fijas terminan al instante.
+if (!story) MotionGlobalConfig.instantAnimations = true;
 const now = Date.now();
 const MIN = 60_000;
 
@@ -269,6 +271,7 @@ async function boot() {
   await import("../island/island.css");
   const { IslandApp } = await import("../island/IslandApp");
   root.render(<IslandApp />);
+  if (story) return playStory();
   await wait(400);
   if (mediaPlaying) await emit("media://state", media);
 
@@ -300,3 +303,28 @@ async function boot() {
 }
 
 boot();
+
+// ---------------------------------------------------------------- historia animada (GIF)
+
+async function playStory() {
+  const agents = (list: unknown[]) => emit("agent://state", list);
+  const hover = (on: boolean) => emit("island://hover", on);
+  const fresh = <T extends object>(o: T, ago: number) => ({ ...o, turnStartedMs: Date.now() - ago, lastEventMs: Date.now() });
+  await wait(1200);
+  await emit("media://state", { ...media, updatedAtMs: Date.now() }); // llega la música
+  await wait(1600);
+  await hover(true); // ratón encima: se asoma y se expande con el panel de música
+  await wait(2600);
+  await hover(false);
+  await wait(1200);
+  await agents([fresh(claude, 4_000)]); // Claude empieza a trabajar: píldora ampliada
+  await wait(2200);
+  await emit("timer://state", { ...timers, pomodoro: { ...timers.pomodoro, running: true, endsAtMs: Date.now() + 18 * MIN + 42_000 } });
+  await agents([fresh(claude, 6_000), fresh(codex, 2_000), fresh(local, 1_000)]);
+  await wait(2800);
+  await hover(true); // panel de agentes
+  await wait(2800);
+  await hover(false);
+  await wait(1400);
+  document.body.dataset.done = "1";
+}
