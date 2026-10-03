@@ -145,3 +145,47 @@
   text-align: center;
   font-size: 13px;
 }
+/* Píldora alta */
+.agent-tall {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.agent-tall-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.agent-tall-line {
+  font-size: 12px;
+  font-weight: 500;
+}
+.agent-tall-meters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  font-size: 11px;
+}
+.agent-mini {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.agent-mini .agent-bar {
+  flex: 1;
+  margin-top: 0;
+  height: 4px;
+}
+.agent-mini .agent-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s;
+}
+.agent-mini-val {
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}

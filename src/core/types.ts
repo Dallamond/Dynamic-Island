@@ -2,6 +2,9 @@
 
 export type Edge = "top" | "left" | "right";
 
+/** Monitores donde la píldora cerrada crece para dar más detalle de una actividad. */
+export type ActivityDetail = "primary" | "all" | "off";
+
 export interface Dock {
   edge: Edge;
   offset: number;
@@ -42,6 +45,7 @@ export interface Settings {
   multiMonitor: boolean;
   minimalInFullscreen: boolean;
   minimalOnActiveMonitor: boolean;
+  activityDetail: ActivityDetail;
   activeMonitor: string | null;
   positions: Record<string, Dock>;
 }

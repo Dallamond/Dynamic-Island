@@ -180,3 +180,12 @@ input[type="color"] {
   color: var(--fg);
   background: #0a84ff22;
 }
+.select {
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 5px 8px;
+  font: inherit;
+  font-size: 13px;
+}

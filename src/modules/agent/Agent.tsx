@@ -69,7 +69,7 @@ export function AgentHost() {
   }, [ttl, endedAgo]);
 
   const priority = !s ? 0 : s.status === "waiting" ? 30 : s.status === "error" ? 25 : s.status === "working" ? 20 : 15;
-  useActivity(visible ? { id: "agent", priority, Compact: AgentCompact, Badge: AgentBadge, tab: "agent" } : null);
+  useActivity(visible ? { id: "agent", priority, Compact: AgentCompact, Tall: AgentTall, Badge: AgentBadge, tab: "agent" } : null);
   return null;
 }
 
@@ -156,6 +156,58 @@ function AgentCompact() {
   );
 }
 
+/** Píldora alta: estado, acción en curso y medidores de uso, sin tener que expandir. */
+function AgentTall() {
+  const s = useStore(agentStore)[0];
+  const now = useTicker(s?.status === "working");
+  if (!s) return null;
+  const t = turnTime(s, now);
+  const u = s.usage;
+  const line =
+    s.status === "working" && s.lastAction ? (
+      <code>{s.lastAction}</code>
+    ) : (
+      <span className="muted">{s.message ?? (s.files.length ? s.files.slice(0, 3).join(" · ") : "—")}</span>
+    );
+  return (
+    <div className="agent-tall">
+      <div className="agent-tall-head">
+        <StatusIcon status={s.status} size={15} />
+        <span className="agent-compact-text">
+          <span style={{ color: STATUS_COLOR[s.status], fontWeight: 650 }}>{STATUS_TEXT[s.status]}</span>
+          {s.project && <span className="muted"> · {s.project}</span>}
+        </span>
+        {t != null && s.status !== "waiting" && <span className="agent-time">{fmtDuration(t)}</span>}
+      </div>
+      <div className="agent-line agent-tall-line" title={s.message ?? undefined}>
+        {line}
+      </div>
+      <div className="agent-tall-meters">
+        <MiniMeter label="Ctx" pct={u.contextPct} />
+        <MiniMeter label="5h" pct={u.fiveHourPct} />
+        <MiniMeter label="Sem" pct={u.sevenDayPct} />
+      </div>
+    </div>
+  );
+}
+
+function meterColor(p: number) {
+  return p >= 90 ? "#ff453a" : p >= 70 ? "#ffb340" : CLAUDE;
+}
+
+function MiniMeter({ label, pct }: { label: string; pct: number | null }) {
+  const p = pct ?? 0;
+  return (
+    <span className="agent-mini">
+      <span className="muted">{label}</span>
+      <span className="agent-bar">
+        <span style={{ width: `${Math.min(100, p)}%`, background: meterColor(p) }} />
+      </span>
+      <span className="agent-mini-val">{pct == null ? "—" : `${Math.round(p)}%`}</span>
+    </span>
+  );
+}
+
 function AgentBadge() {
   const s = useStore(agentStore)[0];
   return s ? <StatusIcon status={s.status} size={14} /> : null;
@@ -165,7 +217,7 @@ function AgentBadge() {
 
 function Meter({ label, pct, sub }: { label: string; pct: number | null; sub?: string }) {
   const p = pct ?? 0;
-  const color = p >= 90 ? "#ff453a" : p >= 70 ? "#ffb340" : CLAUDE;
+  const color = meterColor(p);
   return (
     <div className="agent-meter">
       <div className="agent-meter-head">

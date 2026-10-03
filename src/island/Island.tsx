@@ -19,6 +19,8 @@ const SIZES: Record<Mode, { w: number; h: number; r: number }> = {
 /** Ancho cerrado cuando hay una actividad (música, agente...) en la píldora. */
 const COLLAPSED_ACTIVE_W = 248;
 const MINIMAL = { w: 76, h: 7, r: 4 };
+/** Píldora cerrada alta: la actividad enseña más detalle (Claude Code). Al asomar crece un poco. */
+const TALL = { collapsed: { w: 380, h: 88, r: 28 }, peek: { w: 396, h: 94, r: 30 } };
 
 const spring = { type: "spring", stiffness: 420, damping: 34, mass: 0.9 } as const;
 
@@ -44,10 +46,27 @@ export function Island({ settings }: { settings: Settings }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
+  const [monitor, setMonitor] = useState<string | null>(null);
+  const onLayout = (l: Layout) => {
+    setEdge(l.edge);
+    setMonitor(l.monitor);
+  };
   useEffect(() => {
-    ipc.getLayout().then((l) => setEdge(l.edge));
+    ipc.getLayout().then(onLayout);
   }, []);
-  useWindowEvent<Layout>("island://layout", (l) => setEdge(l.edge));
+  useWindowEvent<Layout>("island://layout", onLayout);
+
+  // ¿Este monitor es el principal? Solo se consulta al cambiar de monitor y si el ajuste lo necesita.
+  const [onPrimary, setOnPrimary] = useState(false);
+  useEffect(() => {
+    if (!monitor || settings.activityDetail !== "primary") return;
+    let alive = true;
+    ipc.listMonitors().then((ms) => alive && setOnPrimary(ms.some((m) => m.name === monitor && m.primary)));
+    return () => {
+      alive = false;
+    };
+  }, [monitor, settings.activityDetail]);
+  const detailHere = settings.activityDetail === "all" || (settings.activityDetail === "primary" && onPrimary);
   const [minimal, setMinimal] = useState(false);
   useWindowEvent<boolean>("island://minimal", setMinimal);
 
@@ -76,8 +95,9 @@ export function Island({ settings }: { settings: Settings }) {
 
   // Mínima (pantalla completa / monitor en uso): una barrita fina; el hover la expande igual.
   const isMinimal = minimal && mode === "collapsed" && !dragging;
-  const size = isMinimal ? MINIMAL : SIZES[mode];
-  const w = isMinimal ? MINIMAL.w : mode === "collapsed" && primary ? COLLAPSED_ACTIVE_W : size.w;
+  const tall = !isMinimal && !dragging && mode !== "expanded" && !!primary?.Tall && detailHere;
+  const size = isMinimal ? MINIMAL : tall ? TALL[mode as "collapsed" | "peek"] : SIZES[mode];
+  const w = isMinimal || tall ? size.w : mode === "collapsed" && primary ? COLLAPSED_ACTIVE_W : size.w;
 
   const onPointerDown = (e: PointerEvent) => {
     if (e.button !== 0) return;
@@ -145,15 +165,15 @@ export function Island({ settings }: { settings: Settings }) {
             </motion.div>
           ) : (
             <motion.div
-              key={`compact-${primary?.id ?? "clock"}`}
-              className={`compact${mode === "peek" ? " peek" : ""}`}
+              key={`compact-${primary?.id ?? "clock"}${tall ? "-tall" : ""}`}
+              className={`compact${mode === "peek" ? " peek" : ""}${tall ? " tall" : ""}${tall && secondary?.Badge ? " has-badge" : ""}`}
               initial={{ opacity: 0, filter: "blur(4px)" }}
               animate={{ opacity: 1, filter: "blur(0px)" }}
               exit={{ opacity: 0, filter: "blur(4px)", transition: { duration: 0.1 } }}
               transition={{ duration: 0.18 }}
             >
               <ErrorBoundary resetKey={primary?.id} fallback={<CompactClock seconds={ap.showSeconds} />}>
-                {primary ? <primary.Compact /> : <CompactClock seconds={ap.showSeconds} />}
+                {tall && primary?.Tall ? <primary.Tall /> : primary ? <primary.Compact /> : <CompactClock seconds={ap.showSeconds} />}
               </ErrorBoundary>
               {secondary?.Badge && (
                 <span className="compact-badge">

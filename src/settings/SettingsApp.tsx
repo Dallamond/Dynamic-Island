@@ -1,7 +1,7 @@
 // Ventana de ajustes. Cada cambio se guarda al momento (con un pequeño debounce).
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ipc, useTauriEvent } from "../core/ipc";
-import type { Appearance, Modules, MonitorInfo, Settings, Shortcuts } from "../core/types";
+import type { ActivityDetail, Appearance, Modules, MonitorInfo, Settings, Shortcuts } from "../core/types";
 
 export function SettingsApp() {
   const [s, setS] = useState<Settings | null>(null);
@@ -52,6 +52,17 @@ export function SettingsApp() {
         <Slider label="Retardo al expandir" min={0} max={1500} step={50} value={s.appearance.expandDelayMs} fmt={(v) => `${v} ms`} onChange={(v) => ap("expandDelayMs", v)} />
         <Slider label="Retardo al cerrar" min={0} max={1500} step={50} value={s.appearance.collapseDelayMs} fmt={(v) => `${v} ms`} onChange={(v) => ap("collapseDelayMs", v)} />
         <Toggle label="Segundos en el reloj cerrado" value={s.appearance.showSeconds} onChange={(v) => ap("showSeconds", v)} />
+        <Row label="Píldora ampliada con Claude Code">
+          <select
+            className="select"
+            value={s.activityDetail}
+            onChange={(e) => update({ ...s, activityDetail: e.target.value as ActivityDetail })}
+          >
+            <option value="primary">Solo monitor principal</option>
+            <option value="all">Todos los monitores</option>
+            <option value="off">Nunca</option>
+          </select>
+        </Row>
       </Section>
 
       <Section title="Posición">

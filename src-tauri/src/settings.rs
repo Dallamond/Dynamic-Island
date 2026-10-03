@@ -13,6 +13,17 @@ pub enum Edge {
     Right,
 }
 
+/// En qué monitores la píldora cerrada crece para dar más detalle de una actividad (Claude Code).
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum ActivityDetail {
+    /// Solo en el monitor principal.
+    #[default]
+    Primary,
+    All,
+    Off,
+}
+
 /// Dónde está acoplada la isla dentro de un monitor.
 /// `offset` es la posición del centro de la isla a lo largo del borde (0..1).
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -109,6 +120,8 @@ pub struct Settings {
     pub minimal_in_fullscreen: bool,
     /// Estado mínimo en el monitor donde está la ventana activa (solo multimonitor).
     pub minimal_on_active_monitor: bool,
+    /// Píldora cerrada ampliada con el detalle de la actividad.
+    pub activity_detail: ActivityDetail,
     /// Nombre del monitor activo (p. ej. `\\.\DISPLAY1`). `None` = principal.
     pub active_monitor: Option<String>,
     /// Posición guardada por monitor.
@@ -147,6 +160,7 @@ impl Default for Settings {
             multi_monitor: false,
             minimal_in_fullscreen: true,
             minimal_on_active_monitor: false,
+            activity_detail: ActivityDetail::Primary,
             active_monitor: None,
             positions: HashMap::new(),
         }
