@@ -6,8 +6,8 @@ import { emit } from "@tauri-apps/api/event";
 import { MotionGlobalConfig } from "motion/react";
 import type { Settings } from "../core/types";
 
-// Chrome sin ventana no completa las animaciones: en las capturas se salta directamente al estado final.
-MotionGlobalConfig.skipAnimations = true;
+// Chrome sin ventana no completa las animaciones: en las capturas terminan al instante.
+MotionGlobalConfig.instantAnimations = true;
 
 const params = new URLSearchParams(location.search);
 const scene = params.get("scene") ?? "clock";
@@ -139,8 +139,7 @@ const agentsByScene: Record<string, unknown[]> = {
   "focus-timer": [claude],
 };
 
-// En "timer-expanded" va en pausa: sin animaciones, el tic de cada segundo devolvería la píldora al tamaño cerrado.
-const pomodoroRunning = ["agents-multi", "agents-timer", "home-expanded", "focus-timer"].includes(scene);
+const pomodoroRunning = ["agents-multi", "agents-timer", "timer-expanded", "home-expanded", "focus-timer"].includes(scene);
 const timers = {
   stopwatch: { running: false, accumulatedMs: 0, startedAtMs: null },
   countdown: { durationMs: 10 * MIN, running: false, remainingMs: 10 * MIN, endsAtMs: null },
