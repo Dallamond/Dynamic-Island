@@ -1,7 +1,7 @@
 use dynamic_island_lib::settings::{Dock, Edge};
 use dynamic_island_lib::window::placement::*;
 
-// Los tres monitores reales de Lucas.
+// Tres monitores reales de prueba (principal 1440p, vertical y 1080p).
 const MAIN: Rect = Rect { x: 0, y: 0, w: 2560, h: 1440 };
 const VERT: Rect = Rect { x: -1080, y: -294, w: 1080, h: 1920 };
 

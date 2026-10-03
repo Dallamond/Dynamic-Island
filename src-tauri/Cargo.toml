@@ -2,7 +2,9 @@
 name = "dynamic-island"
 version = "0.2.0"
 description = "Dynamic Island para Windows"
-authors = ["Lucas Fernández Carrasco"]
+authors = ["Dallamond"]
+license = "MIT"
+repository = "https://github.com/Dallamond/Dynamic-Isand"
 edition = "2021"
 
 [lib]

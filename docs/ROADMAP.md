@@ -1,7 +1,7 @@
 # Hoja de ruta
 
 Las fases 1 a 4 forman el MVP. Cada fase termina con su criterio verificado y un commit.
-Estado: ⬜ pendiente · 🔄 en curso · ✅ hecha · 🧪 hecha, falta prueba manual de Lucas.
+Estado: ⬜ pendiente · 🔄 en curso · ✅ hecha · 🧪 hecha, falta prueba manual.
 
 | Fase | Estado | Se da por terminada cuando |
 | --- | --- | --- |

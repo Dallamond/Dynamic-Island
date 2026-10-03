@@ -75,7 +75,7 @@ Necesita **WebView2**, que ya viene con Windows 10 (actualizado) y Windows 11.
 | Ajustes | Engranaje de la isla expandida o icono de la bandeja |
 
 Los atajos se cambian en Ajustes. Los ajustes se guardan en
-`%APPDATA%\com.lucas.dynamicisland\settings.json`.
+`%APPDATA%\com.dallamond.dynamicisland\settings.json`.
 
 ## Conectar los agentes
 
@@ -174,6 +174,10 @@ Hecho: la isla, música, Claude Code, sistema y utilidades, multimonitor, instal
 varios agentes a la vez y contenido fijo por monitor. Pendiente: aprobar permisos de Claude Code desde
 la isla, avisos configurables, letras sincronizadas (LRCLIB), Google Calendar y notificaciones de Windows.
 Ver [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+## Licencia
+
+[MIT](LICENSE) © 2026 Dallamond.
 
 ## Créditos
 

@@ -1,4 +1,4 @@
-//! Notas rápidas persistentes en `%APPDATA%/com.lucas.dynamicisland/notes.json`.
+//! Notas rápidas persistentes en `%APPDATA%/com.dallamond.dynamicisland/notes.json`.
 
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;

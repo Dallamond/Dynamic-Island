@@ -256,6 +256,7 @@ pub fn run() {
         .setup(|app| {
             let handle = app.handle().clone();
             let dir = app.path().app_config_dir()?;
+            settings::migrate_from_old_identifier(&dir);
             let path = settings::path(dir);
             let loaded = settings::load(&path);
             app.manage(Shared {

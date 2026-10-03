@@ -1,4 +1,4 @@
-//! Ajustes persistentes en `%APPDATA%/com.lucas.dynamicisland/settings.json`.
+//! Ajustes persistentes en `%APPDATA%/com.dallamond.dynamicisland/settings.json`.
 //! Rust es el dueño de los ajustes: el frontend los pide y los guarda por comandos.
 
 use serde::{Deserialize, Serialize};
@@ -160,6 +160,23 @@ pub struct Settings {
     pub positions: HashMap<String, Dock>,
     /// Módulo fijado por monitor (sin entrada = automático).
     pub monitor_focus: HashMap<String, Focus>,
+}
+
+/// Identificador anterior de la app (hasta la 0.2.0).
+const OLD_IDENTIFIER: &str = "com.lucas.dynamicisland";
+
+/// Si la carpeta de datos nueva no existe, copia ajustes y notas de la del identificador antiguo.
+pub fn migrate_from_old_identifier(dir: &std::path::Path) {
+    if dir.exists() {
+        return;
+    }
+    let Some(old) = dir.parent().map(|p| p.join(OLD_IDENTIFIER)) else { return };
+    if !old.exists() || std::fs::create_dir_all(dir).is_err() {
+        return;
+    }
+    for f in ["settings.json", "notes.json"] {
+        let _ = std::fs::copy(old.join(f), dir.join(f));
+    }
 }
 
 pub fn path(dir: PathBuf) -> PathBuf {

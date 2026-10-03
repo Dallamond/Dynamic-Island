@@ -1,4 +1,4 @@
-# Checklist de pruebas (Lucas)
+# Checklist de pruebas manuales
 
 Lo marcado como "verificado" ya lo comprobó Claude el 02/10/2026 con capturas y medidas.
 Lo demás necesita tus manos, tus apps o tus ojos. Marca con `x` lo que funcione y apunta lo que no.
@@ -61,9 +61,9 @@ Lo demás necesita tus manos, tus apps o tus ojos. Marca con `x` lo que funcione
 
 ## Fase 6 · Agentes y monitores (03/10/2026)
 
-- [x] Píldora ampliada con Claude Code en el monitor principal (probado por Lucas).
-- [x] Pomodoro en columna propia junto a Claude Code (probado por Lucas).
-- [x] Codex aparece con estado, acción y límite (probado por Lucas).
+- [x] Píldora ampliada con Claude Code en el monitor principal (probado a mano).
+- [x] Pomodoro en columna propia junto a Claude Code (probado a mano).
+- [x] Codex aparece con estado, acción y límite (probado a mano).
 - [x] Claude + IA local en dos filas a la vez (verificado con captura).
 - [ ] Los tres a la vez (Claude, Codex y Bionic trabajando).
 - [ ] Ajustes → Posición: fijar Temporizador en un monitor y Agentes IA en otro.
