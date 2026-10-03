@@ -141,7 +141,13 @@ function TimerBadge() {
   const s = useStore(timersStore);
   const now = useNow(true);
   if (!s) return null;
-  return <span className="timer-badge">{primary(s, now).value}</span>;
+  const p = primary(s, now);
+  return (
+    <span className="timer-badge" title={p.label}>
+      <p.icon size={13} />
+      {p.value}
+    </span>
+  );
 }
 
 // ---------------------------------------------------------------- Panel

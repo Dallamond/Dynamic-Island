@@ -97,6 +97,9 @@
 }
 .timer-badge {
   font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .timer-panel {
   height: 100%;

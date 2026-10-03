@@ -21,6 +21,8 @@ const COLLAPSED_ACTIVE_W = 248;
 const MINIMAL = { w: 76, h: 7, r: 4 };
 /** Píldora cerrada alta: la actividad enseña más detalle (Claude Code). Al asomar crece un poco. */
 const TALL = { collapsed: { w: 380, h: 88, r: 28 }, peek: { w: 396, h: 94, r: 30 } };
+/** Ancho extra de la píldora alta para la columna de la actividad secundaria (p. ej. un pomodoro). */
+const TALL_SIDE_W = 64;
 
 const spring = { type: "spring", stiffness: 420, damping: 34, mass: 0.9 } as const;
 
@@ -97,7 +99,8 @@ export function Island({ settings }: { settings: Settings }) {
   const isMinimal = minimal && mode === "collapsed" && !dragging;
   const tall = !isMinimal && !dragging && mode !== "expanded" && !!primary?.Tall && detailHere;
   const size = isMinimal ? MINIMAL : tall ? TALL[mode as "collapsed" | "peek"] : SIZES[mode];
-  const w = isMinimal || tall ? size.w : mode === "collapsed" && primary ? COLLAPSED_ACTIVE_W : size.w;
+  const tallSide = tall && !!secondary?.Badge;
+  const w = isMinimal ? size.w : tall ? size.w + (tallSide ? TALL_SIDE_W : 0) : mode === "collapsed" && primary ? COLLAPSED_ACTIVE_W : size.w;
 
   const onPointerDown = (e: PointerEvent) => {
     if (e.button !== 0) return;
@@ -166,16 +169,28 @@ export function Island({ settings }: { settings: Settings }) {
           ) : (
             <motion.div
               key={`compact-${primary?.id ?? "clock"}${tall ? "-tall" : ""}`}
-              className={`compact${mode === "peek" ? " peek" : ""}${tall ? " tall" : ""}${tall && secondary?.Badge ? " has-badge" : ""}`}
+              className={`compact${mode === "peek" ? " peek" : ""}${tall ? " tall" : ""}`}
               initial={{ opacity: 0, filter: "blur(4px)" }}
               animate={{ opacity: 1, filter: "blur(0px)" }}
               exit={{ opacity: 0, filter: "blur(4px)", transition: { duration: 0.1 } }}
               transition={{ duration: 0.18 }}
             >
               <ErrorBoundary resetKey={primary?.id} fallback={<CompactClock seconds={ap.showSeconds} />}>
-                {tall && primary?.Tall ? <primary.Tall /> : primary ? <primary.Compact /> : <CompactClock seconds={ap.showSeconds} />}
+                {tall && primary?.Tall ? (
+                  <div className="tall-main">
+                    <primary.Tall />
+                  </div>
+                ) : primary ? (
+                  <primary.Compact />
+                ) : (
+                  <CompactClock seconds={ap.showSeconds} />
+                )}
               </ErrorBoundary>
-              {secondary?.Badge && (
+              {tallSide && secondary?.Badge ? (
+                <span className="tall-side">
+                  <secondary.Badge />
+                </span>
+              ) : secondary?.Badge && (
                 <span className="compact-badge">
                   <secondary.Badge />
                 </span>

@@ -214,10 +214,8 @@ body {
 
 /* ---------- Cerrada alta (detalle de una actividad) ---------- */
 .compact.tall {
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: center;
-  gap: 0;
+  justify-content: stretch;
+  gap: 14px;
   padding: 0 20px;
   font-size: 13px;
   font-weight: 500;
@@ -225,11 +223,22 @@ body {
 .compact.tall.peek {
   padding: 0 24px;
 }
-.compact.tall .compact-badge {
-  position: absolute;
-  top: 12px;
-  right: 18px;
+.tall-main {
+  flex: 1;
+  min-width: 0;
 }
-.compact.tall.has-badge {
-  padding-right: 44px;
+/* Columna de la actividad secundaria: icono arriba, valor debajo. */
+.tall-side {
+  flex: none;
+  align-self: center;
+  height: 52px;
+  padding-left: 14px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tall-side > * {
+  flex-direction: column;
+  gap: 4px;
 }
