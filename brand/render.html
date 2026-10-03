@@ -1,0 +1,15 @@
+<!doctype html><meta charset="utf-8">
+<!-- Renderiza las piezas de marca a PNG con Chrome sin ventana: ?p=icon | header | sidebar -->
+<style>html,body{margin:0;background:transparent;font-family:"Segoe UI Variable Display","Segoe UI",sans-serif}
+.header{width:150px;height:57px;background:#fff;display:flex;align-items:center;justify-content:center}
+.sidebar{width:164px;height:314px;background:linear-gradient(160deg,#4a5f8f,#232b40 55%,#11141d);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.sidebar h1{font-size:19px;font-weight:600;margin:0;line-height:1.15}.sidebar p{font-size:10.5px;opacity:.7;margin:0 12px}
+.pill{background:#000;border-radius:999px;display:flex;align-items:center;gap:6px;padding:0 10px;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.dot{border-radius:50%}.bar{border-radius:9px;background:#fff;opacity:.9}</style>
+<body><script>
+const p=new URLSearchParams(location.search).get("p");
+const pill=(w,h)=>`<div class="pill" style="width:${w}px;height:${h}px;box-sizing:border-box"><span class="dot" style="width:${h*.42}px;height:${h*.42}px;background:#d97757"></span><span class="bar" style="flex:1;height:${h*.18}px"></span><span class="dot" style="width:${h*.24}px;height:${h*.24}px;background:#30d158"></span></div>`;
+if(p==="icon")document.body.innerHTML='<img src="icon.svg" width="1024" height="1024" style="display:block">';
+if(p==="header")document.body.innerHTML=`<div class="header">${pill(120,34)}</div>`;
+if(p==="sidebar")document.body.innerHTML=`<div class="sidebar">${pill(124,40)}<h1>Dynamic<br>Island</h1><p>Tu isla para Windows: música, agentes de IA y más.</p></div>`;
+</script>

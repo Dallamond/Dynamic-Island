@@ -1,3 +1,5 @@
+<p align="center"><img src="brand/icon.png" width="96" alt="Icono de Dynamic Island"></p>
+
 # Dynamic Island para Windows
 
 Una isla negra al estilo del iPhone para Windows 10 y 11. Vive arriba de la pantalla, se asoma al pasar
@@ -8,6 +10,16 @@ Hecha con **Tauri 2 + Rust + React + TypeScript + Framer Motion**. Pensada para 
 en reposo usa ~0 % de CPU y ~96 MB de RAM, y ningún módulo consulta nada si está apagado.
 
 > Versión 0.2.0 · Windows 10/11 x64 · Interfaz en español.
+
+<p align="center">
+  <img src="docs/img/agents-multi.png" width="480" alt="Tres agentes trabajando a la vez y un pomodoro">
+</p>
+<p align="center">
+  <img src="docs/img/media-expanded.png" width="320" alt="Panel de música">
+  <img src="docs/img/agent-expanded.png" width="320" alt="Panel de agentes">
+</p>
+
+> Todas las capturas usan datos de ejemplo (se generan con `scripts/capture-docs.mjs`).
 
 ---
 
@@ -28,11 +40,21 @@ en reposo usa ~0 % de CPU y ~96 MB de RAM, y ningún módulo consulta nada si es
   abajo para enseñar el detalle de los agentes sin tener que expandirla.
 - Fuera de Alt+Tab y de la barra de tareas; vive en la bandeja del sistema. Una sola instancia.
 
+| Cerrada | Asomada (ratón encima) | Mínima (pantalla completa) |
+| --- | --- | --- |
+| <img src="docs/img/clock.png" width="260"> | <img src="docs/img/peek.png" width="260"> | <img src="docs/img/minimal.png" width="260"> |
+
+<img src="docs/img/home-expanded.png" width="420" alt="Vista de inicio expandida: reloj, sistema y actividades">
+
 ### Música y audio
 - Canción, artista, carátula y progreso de **cualquier app que use los controles multimedia de Windows**
   (Spotify, YouTube en Chrome/Edge, etc.), con los colores de la carátula.
 - Play/pausa, anterior, siguiente y saltar en la barra de progreso.
 - Volumen, silencio y cambio de salida de audio (altavoces, auriculares...) desde la isla.
+
+| Píldora con música | Panel de música |
+| --- | --- |
+| <img src="docs/img/media.png" width="360"> | <img src="docs/img/media-expanded.png" width="360"> |
 
 ### Agentes de IA
 Varios agentes a la vez: con uno activo la píldora enseña su detalle; con varios, **una fila por agente**.
@@ -43,12 +65,45 @@ Varios agentes a la vez: con uno activo la píldora enseña su detalle; con vari
 | **Codex** (app y CLI) | Lee sus archivos de sesión (`~/.codex/sessions`) | Trabajando / listo, acción en curso, archivos editados, tiempo, contexto, límite de uso de tu plan |
 | **IA local** (Bionic, LM Studio, Ollama) | Su API HTTP en un endpoint configurable | Modelo cargado, "generando" (deducido del uso de la GPU), uso de GPU, contexto cargado |
 
+| Un agente (píldora ampliada) | Pidiendo permiso |
+| --- | --- |
+| <img src="docs/img/agent-tall.png" width="380"> | <img src="docs/img/agent-waiting.png" width="380"> |
+
+| Varios agentes + pomodoro | Agente + pomodoro |
+| --- | --- |
+| <img src="docs/img/agents-multi.png" width="380"> | <img src="docs/img/agents-timer.png" width="380"> |
+
+<img src="docs/img/agent-expanded.png" width="420" alt="Panel de agentes con selector Claude / Codex">
+
+Monitor fijado a **Temporizador**: el pomodoro va delante aunque Claude esté trabajando (icono a la derecha).
+
+<img src="docs/img/focus-timer.png" width="380" alt="Monitor fijado al temporizador">
+
 ### Sistema y utilidades
 - **CPU, RAM y GPU** (NVIDIA por NVML: uso, VRAM, temperatura). Solo se consultan con el panel abierto.
 - **Pomodoro, cuenta atrás y cronómetro.** Siguen contando con la isla cerrada y avisan con un sonido.
 - **Calculadora** y **notas rápidas** que se guardan solas.
 - **Ajustes** en su propia ventana: colores, opacidad, tamaño, retardos, atajos, módulos, monitores y
   arranque con Windows.
+
+| Temporizadores | Sistema |
+| --- | --- |
+| <img src="docs/img/timer-expanded.png" width="360"> | <img src="docs/img/system-expanded.png" width="360"> |
+
+| Calculadora | Notas |
+| --- | --- |
+| <img src="docs/img/calc-expanded.png" width="360"> | <img src="docs/img/notes-expanded.png" width="360"> |
+
+### Ajustes
+
+Aspecto, posición y monitores (con qué enseña cada uno), módulos, IA local, atajos y arranque con Windows.
+
+<details>
+<summary>Ver la ventana de ajustes completa</summary>
+
+<img src="docs/img/settings.png" width="420" alt="Ventana de ajustes">
+
+</details>
 
 ---
 
@@ -148,6 +203,18 @@ Con GNU hay dos detalles: el `crate-type` es solo `rlib` porque un `cdylib` supe
 exports de MinGW, y `windres` no admite espacios en las rutas, así que conviene compilar con
 `CARGO_TARGET_DIR` apuntando a una carpeta sin espacios.
 
+### Capturas de la documentación
+
+Las imágenes de `docs/img` salen de la app real con el backend simulado y datos de ejemplo:
+
+```bash
+npm run dev                         # en otra terminal
+node scripts/capture-docs.mjs       # todas las escenas (o: node scripts/capture-docs.mjs media peek)
+```
+
+`demo.html?scene=<escena>` abre cualquier escena en el navegador. El icono y las imágenes del instalador
+salen de `brand/` (`icon.svg` y `render.html`); los iconos se regeneran con `npx tauri icon brand/icon.png`.
+
 ### Estructura
 
 ```
@@ -162,7 +229,9 @@ src-tauri/src/           Núcleo en Rust
                          codex, localai, system (sysinfo + NVML), timers, notes
   settings.rs            Ajustes persistentes
 scripts/                 Instalador de hooks de Claude Code y statusLine
-docs/                    Hoja de ruta, mediciones, pruebas y referencias
+docs/                    Hoja de ruta, mediciones, pruebas, referencias y capturas (docs/img)
+brand/                   Icono y arte del instalador
+src/demo/                Demo con backend simulado para las capturas
 ```
 
 Reglas de diseño: un módulo es un proveedor en Rust más un componente en React; un módulo apagado no

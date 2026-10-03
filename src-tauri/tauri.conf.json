@@ -38,6 +38,22 @@
   "bundle": {
     "active": true,
     "targets": ["nsis"],
+    "publisher": "Dallamond",
+    "copyright": "© 2026 Dallamond · Licencia MIT",
+    "homepage": "https://github.com/Dallamond/Dynamic-Isand",
+    "category": "Utility",
+    "shortDescription": "Dynamic Island para Windows",
+    "longDescription": "Isla negra al estilo del iPhone para Windows: música, agentes de IA (Claude Code, Codex, IA local), pomodoro, sistema y utilidades.",
+    "licenseFile": "../LICENSE",
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "headerImage": "installer/header.bmp",
+        "sidebarImage": "installer/sidebar.bmp",
+        "languages": ["Spanish"],
+        "installMode": "currentUser"
+      }
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

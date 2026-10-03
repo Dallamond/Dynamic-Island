@@ -161,6 +161,7 @@
 .agent-tall-line {
   font-size: 12px;
   font-weight: 500;
+  line-height: 20px; /* deja sitio al relleno del recuadro de la acción */
 }
 .agent-tall-meters {
   display: grid;
