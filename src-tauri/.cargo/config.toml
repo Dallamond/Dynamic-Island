@@ -1,3 +1,0 @@
-[build]
-# windres (MinGW) no admite espacios en rutas: compilar fuera del vault
-target-dir = "D:/dev-tools/targets/dynamic-island"

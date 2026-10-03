@@ -51,3 +51,46 @@ fn exec_en_modo_codigo() {
     assert_eq!(describe_exec(web), "Buscar precio plus");
     assert_eq!(describe_exec("await tools.view_image({path:\"a.png\"})"), "view_image");
 }
+
+mod ia_local {
+    use dynamic_island_lib::providers::agent::{AgentSession, Status};
+    use dynamic_island_lib::providers::localai::*;
+    use serde_json::json;
+
+    #[test]
+    fn lee_modelo_cargado() {
+        let lm = json!({"data": [
+            {"id": "nomic", "type": "embeddings", "state": "loaded"},
+            {"id": "qwen/qwen3.5-9b", "type": "vlm", "state": "loaded", "loaded_context_length": 8192}
+        ]});
+        let l = parse_lmstudio(&lm).unwrap();
+        assert_eq!((l.model.as_str(), l.context), ("qwen/qwen3.5-9b", Some(8192)));
+        assert!(parse_lmstudio(&json!({"data": [{"id": "x", "type": "llm", "state": "not-loaded"}]})).is_none());
+        assert_eq!(parse_ollama(&json!({"models": [{"name": "llama3.1:8b"}]})).unwrap().model, "llama3.1:8b");
+        assert!(parse_ollama(&json!({"models": []})).is_none());
+    }
+
+    #[test]
+    fn generando_por_gpu() {
+        let l = Loaded { server: "LM Studio", model: "qwen".into(), context: None };
+        let mut s = AgentSession::default();
+        let mut t = Tracker::default();
+        step(&mut s, &mut t, &l, Some(93), 1_000);
+        assert_ne!(s.status, Status::Working, "un pico suelto no basta");
+        step(&mut s, &mut t, &l, Some(91), 3_000);
+        assert_eq!(s.status, Status::Working);
+        assert_eq!(s.turn_started_ms, Some(3_000));
+        assert!(!step(&mut s, &mut t, &l, Some(91), 5_000), "seguir generando con la misma GPU no cambia nada");
+        step(&mut s, &mut t, &l, Some(9), 7_000);
+        assert_eq!(s.status, Status::Done);
+        assert_eq!(s.turn_ended_ms, Some(7_000));
+    }
+}
+
+/// En vivo contra el servidor local: `cargo test --test codex -- --ignored --nocapture`.
+#[test]
+#[ignore]
+fn ia_local_en_vivo() {
+    let (l, gpu) = dynamic_island_lib::providers::localai::probe("http://127.0.0.1:1234");
+    println!("modelo: {l:?} · GPU: {gpu:?}");
+}

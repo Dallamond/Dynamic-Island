@@ -5,6 +5,9 @@ export type Edge = "top" | "left" | "right";
 /** Monitores donde la píldora cerrada crece para dar más detalle de una actividad. */
 export type ActivityDetail = "primary" | "all" | "off";
 
+/** Qué enseña con preferencia la isla de un monitor. */
+export type Focus = "auto" | "agent" | "timer" | "media";
+
 export interface Dock {
   edge: Edge;
   offset: number;
@@ -26,10 +29,16 @@ export interface Modules {
   media: boolean;
   agent: boolean;
   codex: boolean;
+  localAi: boolean;
   system: boolean;
   timer: boolean;
   calc: boolean;
   notes: boolean;
+}
+
+export interface LocalAi {
+  endpoint: string;
+  name: string;
 }
 
 export interface Shortcuts {
@@ -42,6 +51,7 @@ export interface Settings {
   appearance: Appearance;
   modules: Modules;
   shortcuts: Shortcuts;
+  localAi: LocalAi;
   autostart: boolean;
   multiMonitor: boolean;
   minimalInFullscreen: boolean;
@@ -49,6 +59,7 @@ export interface Settings {
   activityDetail: ActivityDetail;
   activeMonitor: string | null;
   positions: Record<string, Dock>;
+  monitorFocus: Record<string, Focus>;
 }
 
 export interface Layout {

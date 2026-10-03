@@ -5,7 +5,7 @@ Lo demás necesita tus manos, tus apps o tus ojos. Marca con `x` lo que funcione
 
 ## Instalar
 
-- [ ] Ejecuta `D:\dev-tools\targets\dynamic-island\release\bundle\nsis\Dynamic Island_0.1.0_x64-setup.exe`
+- [ ] Ejecuta `D:\dev-tools\targets\dynamic-island\release\bundle\nsis\Dynamic Island_0.2.0_x64-setup.exe`
       (sin firmar: SmartScreen puede avisar → "Más información" → "Ejecutar de todas formas").
 - [ ] Ajustes → General → "Arrancar con Windows" y reinicia: la isla aparece sola.
 
@@ -58,3 +58,13 @@ Lo demás necesita tus manos, tus apps o tus ojos. Marca con `x` lo que funcione
 
 - Multimonitor viene **desactivado** (casi duplica la RAM: ~200 MB con 3 islas). Actívalo en Ajustes → Posición.
 - El objetivo de < 80 MB no es alcanzable con WebView2; ¿te vale ~96 MB?
+
+## Fase 6 · Agentes y monitores (03/10/2026)
+
+- [x] Píldora ampliada con Claude Code en el monitor principal (probado por Lucas).
+- [x] Pomodoro en columna propia junto a Claude Code (probado por Lucas).
+- [x] Codex aparece con estado, acción y límite (probado por Lucas).
+- [x] Claude + IA local en dos filas a la vez (verificado con captura).
+- [ ] Los tres a la vez (Claude, Codex y Bionic trabajando).
+- [ ] Ajustes → Posición: fijar Temporizador en un monitor y Agentes IA en otro.
+- [ ] Bionic con nombre propio (Ajustes → Módulos → "Nombre en la isla").

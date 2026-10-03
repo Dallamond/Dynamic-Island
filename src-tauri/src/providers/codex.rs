@@ -16,6 +16,7 @@ use std::time::{Duration, SystemTime};
 use tauri::{AppHandle, Manager};
 
 pub const CODEX: &str = "Codex";
+pub const KIND: &str = "codex";
 /// Cada cuántos segundos se busca un archivo de sesión más nuevo.
 const RESCAN_EVERY: u32 = 5;
 /// Una sesión sin actividad durante este tiempo no se muestra al arrancar ni se conserva.
@@ -43,7 +44,7 @@ pub fn set_enabled(app: &AppHandle, enabled: bool) {
             if let Some(flag) = running.take() {
                 flag.store(false, Ordering::Relaxed);
             }
-            app.state::<AgentState>().sessions.lock().unwrap().retain(|_, s| s.agent != CODEX);
+            app.state::<AgentState>().sessions.lock().unwrap().retain(|_, s| s.kind != KIND);
             agent::emit(app);
         }
         _ => {}
@@ -88,7 +89,7 @@ fn watch(app: AppHandle, root: PathBuf, flag: Arc<AtomicBool>) {
                             t.session = Some(id);
                         }
                         let Some(id) = t.session.clone() else { continue };
-                        let s = map.entry(id.clone()).or_insert_with(|| AgentSession { id, agent: CODEX.into(), ..Default::default() });
+                        let s = map.entry(id.clone()).or_insert_with(|| AgentSession { id, kind: KIND.into(), agent: CODEX.into(), ..Default::default() });
                         changed |= apply_line(s, v);
                     }
                     if first_read {
@@ -100,7 +101,7 @@ fn watch(app: AppHandle, root: PathBuf, flag: Arc<AtomicBool>) {
                         }
                     }
                     let now = now_ms();
-                    map.retain(|_, s| s.agent != CODEX || now - s.last_event_ms < STALE_MS);
+                    map.retain(|_, s| s.kind != KIND || now - s.last_event_ms < STALE_MS);
                     changed
                 };
                 if changed {

@@ -11,7 +11,23 @@ Estado: ⬜ pendiente · 🔄 en curso · ✅ hecha · 🧪 hecha, falta prueba 
 | 3 · Claude Code | 🧪 | Al lanzar Claude Code la isla pasa a "trabajando" y al terminar a "listo"; tokens y uso coinciden con lo que muestra Claude Code; con Claude Code cerrado no consulta nada |
 | 4 · Sistema y utilidades | 🧪 | CPU, RAM y GPU coinciden con el Administrador de tareas; pomodoro y cronómetro siguen contando con la isla cerrada; las notas se conservan al reiniciar |
 | 5 · Multimonitor y pulido | 🧪 | Hay una isla por monitor a la vez, pasa a estado mínimo con una pantalla completa, el consumo en reposo está medido y apuntado, y hay un instalador |
-| 6 · Futuro | ⬜ | Permisos desde la isla, avisos configurables, Codex/agentes locales, letras LRCLIB, Google Calendar, notificaciones de Windows. Cada uno es su propia mini-fase |
+| 6 · Futuro | 🔄 | Permisos desde la isla, avisos configurables, Codex/agentes locales, letras LRCLIB, Google Calendar, notificaciones de Windows. Cada uno es su propia mini-fase |
+
+### Fase 6 · mini-fases
+
+| Mini-fase | Estado | Notas |
+| --- | --- | --- |
+| Píldora ampliada (detalle de agentes sin expandir) | ✅ | 03/10/2026 · solo monitor principal, todos o nunca |
+| Temporizador junto a los agentes | ✅ | 03/10/2026 · columna propia en la píldora alta |
+| Codex | ✅ | 03/10/2026 · lee `~/.codex/sessions`; sin aviso de permiso (Codex no lo registra) |
+| IA local (Bionic / LM Studio / Ollama) | ✅ | 03/10/2026 · "generando" por GPU ≥ 60 % (reposo ≤ 18 %, generando 89–100 % en RTX 3060) |
+| Varios agentes a la vez | ✅ | 03/10/2026 · una fila por agente (máx. 3) |
+| Contenido fijo por monitor | ✅ | 03/10/2026 · automático, agentes, temporizador o música |
+| Permisos de Claude Code desde la isla | ⬜ | |
+| Avisos configurables | ⬜ | |
+| Letras LRCLIB | ⬜ | |
+| Google Calendar | ⬜ | |
+| Notificaciones de Windows | ⬜ | |
 
 ## Funcionalidades por fase
 

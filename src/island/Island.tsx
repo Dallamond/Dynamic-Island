@@ -20,7 +20,9 @@ const SIZES: Record<Mode, { w: number; h: number; r: number }> = {
 const COLLAPSED_ACTIVE_W = 248;
 const MINIMAL = { w: 76, h: 7, r: 4 };
 /** Píldora cerrada alta: la actividad enseña más detalle (Claude Code). Al asomar crece un poco. */
-const TALL = { collapsed: { w: 380, h: 88, r: 28 }, peek: { w: 396, h: 94, r: 30 } };
+const TALL = { w: 380, h: 88, r: 28 };
+/** Al asomar, la píldora alta crece un poco. */
+const TALL_PEEK = { w: 16, h: 6 };
 /** Ancho extra de la píldora alta para la columna de la actividad secundaria (p. ej. un pomodoro). */
 const TALL_SIDE_W = 64;
 
@@ -34,7 +36,14 @@ export function Island({ settings }: { settings: Settings }) {
   const { mode, dragging, onClick, startEditing, stopEditing } = useIslandMode(ap.expandDelayMs, ap.collapseDelayMs);
   const [edge, setEdge] = useState<Edge>("top");
   const pill = useRef<HTMLDivElement>(null);
-  const activities = useActivities();
+  const [monitor, setMonitor] = useState<string | null>(null);
+  // Módulo fijado en este monitor: sus actividades pasan delante; si no tiene ninguna, orden normal.
+  const focus = (monitor && settings.monitorFocus?.[monitor]) || "auto";
+  const all = useActivities();
+  const activities = useMemo(
+    () => (focus === "auto" ? all : [...all.filter((a) => a.tab === focus), ...all.filter((a) => a.tab !== focus)]),
+    [all, focus],
+  );
   const primary = activities[0];
   const secondary = activities[1];
 
@@ -42,13 +51,14 @@ export function Island({ settings }: { settings: Settings }) {
   const [tab, setTab] = useState("home");
   const activeTab = modules.find((m) => m.id === tab) ?? modules[0];
 
-  // Al expandir, saltar a la pestaña de la actividad principal (p. ej. música).
+  // Al expandir, saltar a la pestaña del módulo fijado o de la actividad principal (p. ej. música).
   useEffect(() => {
-    if (mode === "expanded" && primary?.tab && modules.some((m) => m.id === primary.tab)) setTab(primary.tab);
+    if (mode !== "expanded") return;
+    const target = focus !== "auto" ? focus : primary?.tab;
+    if (target && modules.some((m) => m.id === target)) setTab(target);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
-  const [monitor, setMonitor] = useState<string | null>(null);
   const onLayout = (l: Layout) => {
     setEdge(l.edge);
     setMonitor(l.monitor);
@@ -98,7 +108,14 @@ export function Island({ settings }: { settings: Settings }) {
   // Mínima (pantalla completa / monitor en uso): una barrita fina; el hover la expande igual.
   const isMinimal = minimal && mode === "collapsed" && !dragging;
   const tall = !isMinimal && !dragging && mode !== "expanded" && !!primary?.Tall && detailHere;
-  const size = isMinimal ? MINIMAL : tall ? TALL[mode as "collapsed" | "peek"] : SIZES[mode];
+  const tallH = primary?.tallHeight ?? TALL.h;
+  const size = isMinimal
+    ? MINIMAL
+    : tall
+      ? mode === "peek"
+        ? { w: TALL.w + TALL_PEEK.w, h: tallH + TALL_PEEK.h, r: TALL.r + 2 }
+        : { ...TALL, h: tallH }
+      : SIZES[mode];
   const tallSide = tall && !!secondary?.Badge;
   const w = isMinimal ? size.w : tall ? size.w + (tallSide ? TALL_SIDE_W : 0) : mode === "collapsed" && primary ? COLLAPSED_ACTIVE_W : size.w;
 

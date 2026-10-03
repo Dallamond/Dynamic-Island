@@ -189,3 +189,70 @@
   font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
+/* Varios agentes: una fila por agente */
+.agent-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.agent-row {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1.15fr) minmax(0, 1fr) auto 42px;
+  align-items: center;
+  gap: 8px;
+  height: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.agent-row-name,
+.agent-row-action {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.agent-row-action {
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  opacity: 0.8;
+}
+.agent-row-metric {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.agent-row .agent-time {
+  text-align: right;
+  font-size: 11px;
+}
+.agent-more {
+  flex: none;
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.12);
+}
+/* Selector de agente en el panel */
+.agent-switch {
+  display: flex;
+  gap: 4px;
+}
+.agent-switch-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 8px;
+  opacity: 0.6;
+  background: rgba(255, 255, 255, 0.06);
+}
+.agent-switch-btn:hover {
+  opacity: 0.9;
+}
+.agent-switch-btn.on {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.14);
+}

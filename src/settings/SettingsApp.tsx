@@ -1,7 +1,7 @@
 // Ventana de ajustes. Cada cambio se guarda al momento (con un pequeño debounce).
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ipc, useTauriEvent } from "../core/ipc";
-import type { ActivityDetail, Appearance, Modules, MonitorInfo, Settings, Shortcuts } from "../core/types";
+import type { ActivityDetail, Appearance, Focus, Modules, MonitorInfo, Settings, Shortcuts } from "../core/types";
 
 export function SettingsApp() {
   const [s, setS] = useState<Settings | null>(null);
@@ -67,6 +67,7 @@ export function SettingsApp() {
 
       <Section title="Posición">
         <MonitorMap active={s.activeMonitor} />
+        {s.multiMonitor && <MonitorFocus s={s} update={update} />}
         <p className="hint">Arrastra la isla para moverla: se imanta arriba o a un lateral del monitor donde la sueltes.</p>
         <Toggle label="Una isla en cada monitor" value={s.multiMonitor} onChange={(v) => update({ ...s, multiMonitor: v })} />
         <Toggle label="Mínima con pantalla completa" value={s.minimalInFullscreen} onChange={(v) => update({ ...s, minimalInFullscreen: v })} />
@@ -86,6 +87,30 @@ export function SettingsApp() {
         <Toggle label="Música y audio" value={s.modules.media} onChange={(v) => mod("media", v)} />
         <Toggle label="Claude Code" value={s.modules.agent} onChange={(v) => mod("agent", v)} />
         <Toggle label="Codex" value={s.modules.codex} onChange={(v) => mod("codex", v)} />
+        <Toggle label="IA local (Bionic, LM Studio, Ollama)" value={s.modules.localAi} onChange={(v) => mod("localAi", v)} />
+        {s.modules.localAi && (
+          <>
+            <Row label="Endpoint de la IA local">
+              <input
+                className="select"
+                style={{ width: 200 }}
+                value={s.localAi.endpoint}
+                placeholder="http://127.0.0.1:1234"
+                onChange={(e) => update({ ...s, localAi: { ...s.localAi, endpoint: e.target.value } })}
+              />
+            </Row>
+            <Row label="Nombre en la isla">
+              <input
+                className="select"
+                style={{ width: 200 }}
+                value={s.localAi.name}
+                placeholder="automático (LM Studio / Ollama)"
+                onChange={(e) => update({ ...s, localAi: { ...s.localAi, name: e.target.value } })}
+              />
+            </Row>
+            <p className="hint">Bionic y LM Studio usan el puerto 1234; Ollama, el 11434. "Generando" se deduce del uso de la GPU (≥ 60 %).</p>
+          </>
+        )}
         <Toggle label="Sistema (CPU, RAM, GPU)" value={s.modules.system} onChange={(v) => mod("system", v)} />
         <Toggle label="Temporizadores" value={s.modules.timer} onChange={(v) => mod("timer", v)} />
         <Toggle label="Calculadora" value={s.modules.calc} onChange={(v) => mod("calc", v)} />
@@ -188,6 +213,36 @@ function codeToKey(code: string): string | null {
 }
 
 /** Mini-mapa de monitores a escala: clic para mover la isla a ese monitor. */
+const FOCUS_LABEL: Record<Focus, string> = { auto: "Automático", agent: "Agentes IA", timer: "Temporizador", media: "Música" };
+
+/** Qué enseña con preferencia la isla de cada monitor. */
+function MonitorFocus({ s, update }: { s: Settings; update: (next: Settings) => void }) {
+  const [mons, setMons] = useState<MonitorInfo[]>([]);
+  useEffect(() => {
+    ipc.listMonitors().then(setMons);
+  }, []);
+  return (
+    <>
+      {mons.map((m, i) => (
+        <Row key={m.name} label={`Monitor ${i + 1}${m.primary ? " (principal)" : ""} muestra`}>
+          <select
+            className="select"
+            value={s.monitorFocus?.[m.name] ?? "auto"}
+            onChange={(e) => update({ ...s, monitorFocus: { ...s.monitorFocus, [m.name]: e.target.value as Focus } })}
+          >
+            {(Object.keys(FOCUS_LABEL) as Focus[]).map((f) => (
+              <option key={f} value={f}>
+                {FOCUS_LABEL[f]}
+              </option>
+            ))}
+          </select>
+        </Row>
+      ))}
+      <p className="hint">Lo fijado pasa delante en la isla de ese monitor; si no hay nada activo de ese módulo, enseña lo de siempre.</p>
+    </>
+  );
+}
+
 function MonitorMap({ active }: { active: string | null }) {
   const [mons, setMons] = useState<MonitorInfo[]>([]);
   useEffect(() => {

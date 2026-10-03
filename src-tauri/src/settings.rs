@@ -24,6 +24,18 @@ pub enum ActivityDetail {
     Off,
 }
 
+/// Qué enseña con preferencia la isla de un monitor.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum Focus {
+    /// Lo más importante en cada momento.
+    #[default]
+    Auto,
+    Agent,
+    Timer,
+    Media,
+}
+
 /// Dónde está acoplada la isla dentro de un monitor.
 /// `offset` es la posición del centro de la isla a lo largo del borde (0..1).
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq)]
@@ -79,6 +91,8 @@ pub struct Modules {
     pub agent: bool,
     /// Codex (app de escritorio o CLI), leído de sus archivos de sesión.
     pub codex: bool,
+    /// IA local (Bionic / LM Studio u Ollama) por su API.
+    pub local_ai: bool,
     pub system: bool,
     pub timer: bool,
     pub calc: bool,
@@ -87,7 +101,22 @@ pub struct Modules {
 
 impl Default for Modules {
     fn default() -> Self {
-        Self { media: true, agent: true, codex: true, system: true, timer: true, calc: true, notes: true }
+        Self { media: true, agent: true, codex: true, local_ai: true, system: true, timer: true, calc: true, notes: true }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(default, rename_all = "camelCase")]
+pub struct LocalAi {
+    /// `http://host:puerto` del servidor (LM Studio/Bionic: 1234, Ollama: 11434).
+    pub endpoint: String,
+    /// Nombre en la isla; vacío = el del servidor detectado.
+    pub name: String,
+}
+
+impl Default for LocalAi {
+    fn default() -> Self {
+        Self { endpoint: "http://127.0.0.1:1234".into(), name: String::new() }
     }
 }
 
@@ -115,6 +144,7 @@ pub struct Settings {
     pub appearance: Appearance,
     pub modules: Modules,
     pub shortcuts: Shortcuts,
+    pub local_ai: LocalAi,
     pub autostart: bool,
     /// Una isla en cada monitor a la vez.
     pub multi_monitor: bool,
@@ -128,6 +158,8 @@ pub struct Settings {
     pub active_monitor: Option<String>,
     /// Posición guardada por monitor.
     pub positions: HashMap<String, Dock>,
+    /// Módulo fijado por monitor (sin entrada = automático).
+    pub monitor_focus: HashMap<String, Focus>,
 }
 
 pub fn path(dir: PathBuf) -> PathBuf {
@@ -158,6 +190,7 @@ impl Default for Settings {
             appearance: Appearance::default(),
             modules: Modules::default(),
             shortcuts: Shortcuts::default(),
+            local_ai: LocalAi::default(),
             autostart: false,
             multi_monitor: false,
             minimal_in_fullscreen: true,
@@ -165,6 +198,7 @@ impl Default for Settings {
             activity_detail: ActivityDetail::Primary,
             active_monitor: None,
             positions: HashMap::new(),
+            monitor_focus: HashMap::new(),
         }
     }
 }

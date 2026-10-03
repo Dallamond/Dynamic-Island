@@ -48,6 +48,8 @@ pub struct Usage {
     pub lines_removed: Option<u64>,
     /// Límites de uso del plan (Claude: 5 h y semana; Codex: lo que diga su ventana).
     pub limits: Vec<Limit>,
+    /// Uso de GPU (solo IA local).
+    pub gpu_pct: Option<f64>,
 }
 
 #[derive(Serialize, Clone, Debug, PartialEq)]
@@ -66,6 +68,9 @@ pub struct Limit {
 #[serde(rename_all = "camelCase")]
 pub struct AgentSession {
     pub id: String,
+    /// Tipo de agente: "claude", "codex" o "local". Decide color e icono.
+    pub kind: String,
+    /// Nombre visible ("Claude Code", "Codex", "Bionic"...).
     pub agent: String,
     pub project: String,
     pub cwd: String,
@@ -117,7 +122,7 @@ pub fn set_enabled(app: &AppHandle, enabled: bool) {
                 // Despierta al accept() bloqueado para que el hilo termine.
                 let _ = TcpStream::connect_timeout(&([127, 0, 0, 1], PORT).into(), Duration::from_millis(200));
             }
-            st.sessions.lock().unwrap().retain(|_, s| s.agent != CLAUDE);
+            st.sessions.lock().unwrap().retain(|_, s| s.kind != "claude");
             emit(app);
         }
         _ => {}
@@ -228,7 +233,7 @@ fn describe_tool(name: &str, input: &Value) -> String {
 
 fn session_entry<'a>(map: &'a mut HashMap<String, AgentSession>, v: &Value) -> Option<&'a mut AgentSession> {
     let id = str_of(v, "session_id")?.to_string();
-    let s = map.entry(id.clone()).or_insert_with(|| AgentSession { id, agent: CLAUDE.into(), ..Default::default() });
+    let s = map.entry(id.clone()).or_insert_with(|| AgentSession { id, kind: "claude".into(), agent: CLAUDE.into(), ..Default::default() });
     if let Some(cwd) = str_of(v, "cwd") {
         s.cwd = cwd.to_string();
         s.project = file_name(cwd.trim_end_matches(['/', '\\']));
@@ -327,6 +332,7 @@ pub fn apply_status(map: &mut HashMap<String, AgentSession>, v: &Value) -> bool 
     let u = |p: &str| v.pointer(p).and_then(|x| x.as_u64());
     let i = |p: &str| v.pointer(p).and_then(|x| x.as_i64());
     s.usage = Usage {
+        gpu_pct: None,
         model: v.pointer("/model/display_name").and_then(|x| x.as_str()).map(String::from).or(s.usage.model.take()),
         context_pct: f("/context_window/used_percentage"),
         context_size: u("/context_window/context_window_size"),

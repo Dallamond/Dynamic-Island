@@ -11,6 +11,8 @@ export interface Activity {
   Compact: FC;
   /** Versión alta de la píldora cerrada, con más detalle (si el ajuste lo permite en este monitor). */
   Tall?: FC;
+  /** Alto de la píldora alta (px). Por defecto 88. */
+  tallHeight?: number;
   /** Indicador mínimo cuando es la actividad secundaria (un icono o un número). */
   Badge?: FC;
   /** Módulo al que saltar al expandir con esta actividad delante. */
@@ -25,14 +27,15 @@ export function useActivity(activity: Activity | null) {
   const priority = activity?.priority;
   const Compact = activity?.Compact;
   const Tall = activity?.Tall;
+  const tallHeight = activity?.tallHeight;
   const Badge = activity?.Badge;
   const tab = activity?.tab;
   useEffect(() => {
     if (!id || !Compact || priority === undefined) return;
-    const a: Activity = { id, priority, Compact, Tall, Badge, tab };
+    const a: Activity = { id, priority, Compact, Tall, tallHeight, Badge, tab };
     activities.set((list) => [...list.filter((x) => x.id !== id), a].sort((x, y) => y.priority - x.priority));
     return () => activities.set((list) => list.filter((x) => x.id !== id));
-  }, [id, priority, Compact, Tall, Badge, tab]);
+  }, [id, priority, Compact, Tall, tallHeight, Badge, tab]);
 }
 
 export function useActivities(): Activity[] {
