@@ -4,7 +4,7 @@ version = "0.2.0"
 description = "Dynamic Island para Windows"
 authors = ["Dallamond"]
 license = "MIT"
-repository = "https://github.com/Dallamond/Dynamic-Isand"
+repository = "https://github.com/Dallamond/Dynamic-Island"
 edition = "2021"
 
 [lib]
